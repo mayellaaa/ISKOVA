@@ -162,25 +162,42 @@
     reserveForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const date = dateSelect.value;
-      const time = timeSelect.value;
+      let time = timeSelect.value;
       if(!date || !time){ 
         alert('Please select both date and time'); 
         return; 
       }
 
+      // Normalize time format to match database (add :00 seconds if not present)
+      if(time.length === 5) {
+        time = time + ':00';
+      }
+
       // Get existing bookings for that date/time
-      const existingBookings = await getReservations();
+      const existingBookings = await Database.getAllBookings();
+      
+      // Get labs that are already booked in the same HOUR (not just exact time)
+      // Extract hour from selected time (e.g., "08:30:00" -> "08")
+      const selectedHour = time.split(':')[0];
+      
       const bookedLabs = existingBookings
-        .filter(b => b.date === date && b.time === time)
+        .filter(b => {
+          if(b.date !== date) return false;
+          // Extract hour from booking time
+          const bookingHour = b.time.split(':')[0];
+          // If same hour, lab is booked for entire hour
+          return bookingHour === selectedHour;
+        })
         .map(b => b.lab);
 
-      // Filter available labs
+      console.log('Date:', date, 'Time:', time, 'Hour:', selectedHour);
+      console.log('Booked labs in this hour:', bookedLabs);
+      console.log('All bookings:', existingBookings);
+
+      // Filter available labs (only show labs that aren't booked)
       const availableLabs = labsData.filter(lab => {
-        // Check if lab is not fully booked
-        if(lab.status === 'full') return false;
-        // Check if already booked at this time
-        if(bookedLabs.includes(lab.name)) return false;
-        return true;
+        // If lab is already booked at this time, it's not available
+        return !bookedLabs.includes(lab.name);
       });
 
       // Display available labs
@@ -191,8 +208,8 @@
         availabilityPanel.innerHTML = availableLabs.map(lab => `
           <div class="availability-item" data-lab='${JSON.stringify(lab)}'>
             <h4>${lab.name}</h4>
-            <p><strong>Capacity:</strong> ${lab.capacity} | <strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
-            <span class="status-badge ${lab.status}">${lab.status.toUpperCase()}</span>
+            <p><strong>Capacity:</strong> ${lab.capacity} students | <strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
+            <span class="status-badge available">AVAILABLE</span>
           </div>
         `).join('');
 
@@ -214,15 +231,14 @@
 
     // Show booking summary
     function showBookingSummary(lab, date, time){
-      const system = `${lab.name} • PC-${Math.floor(Math.random()*lab.computers)+1}`;
       document.getElementById('selectedLab').textContent = lab.name;
       document.getElementById('selectedDate').textContent = date;
       document.getElementById('selectedTime').textContent = time;
-      document.getElementById('selectedSystem').textContent = system;
+      document.getElementById('selectedSystem').textContent = `${lab.building}, ${lab.floor}`;
       bookingSection.style.display = 'block';
       
       // Store for confirmation
-      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, system });
+      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time });
     }
 
     // Confirm booking button
@@ -234,6 +250,32 @@
           return;
         }
         const bookingData = JSON.parse(bookingSection.dataset.booking);
+        
+        // Normalize time format for comparison
+        let checkTime = bookingData.time;
+        if(checkTime && checkTime.length === 5) {
+          checkTime = checkTime + ':00';
+        }
+        
+        // Extract hour from selected time
+        const selectedHour = checkTime.split(':')[0];
+        
+        // Double-check that this lab/hour isn't already booked
+        const existingBookings = await Database.getAllBookings();
+        const alreadyBooked = existingBookings.some(b => {
+          if(b.lab !== bookingData.lab || b.date !== bookingData.date) return false;
+          // Extract hour from existing booking
+          const bookingHour = b.time.split(':')[0];
+          // If same hour, it's blocked
+          return bookingHour === selectedHour;
+        });
+        
+        if(alreadyBooked){
+          alert('This lab at this time is already booked. Please select a different time.');
+          location.reload();
+          return;
+        }
+        
         const booking = await saveReservation(bookingData);
         if(booking){
           alert('Booking created! Please confirm it in Manage Reservations.');
@@ -275,7 +317,6 @@
                 <span class="status-badge ${statusClass}">${statusText}</span>
               </div>
               <div class="reservation-details">
-                <p><strong>System:</strong> ${booking.system || 'TBD'}</p>
                 <p><strong>Date:</strong> ${booking.date}</p>
                 <p><strong>Time:</strong> ${booking.time}</p>
                 <p><strong>Booking ID:</strong> ${booking.id}</p>
@@ -309,7 +350,7 @@
         historyEl.innerHTML = bookings.reverse().map(b => `
           <div class="booking-card">
             <div class="info">
-              <h4>${b.lab} - ${b.system || 'TBD'}</h4>
+              <h4>${b.lab}</h4>
               <p>${b.date} at ${b.time} • ID: ${b.id}</p>
             </div>
             <div class="actions">
@@ -340,7 +381,7 @@
       document.getElementById('confirmLab').textContent = booking.lab;
       document.getElementById('confirmDate').textContent = booking.date;
       document.getElementById('confirmTime').textContent = booking.time;
-      document.getElementById('confirmSystem').textContent = booking.system || 'TBD';
+      document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
       document.getElementById('confirmId').textContent = booking.id || 'N/A';
       
       // Simple QR code visualization
@@ -384,7 +425,6 @@
               <span class="badge ${badgeClass}">${lab.status.toUpperCase()}</span>
               <div class="lab-info">
                 <p><strong>Capacity:</strong> ${lab.capacity} students</p>
-                <p><strong>Computers:</strong> ${lab.computers} units</p>
                 <p><strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
               </div>
               <a class="btn primary" href="reserve.html" style="width:100%;margin-top:12px">Book Now</a>
