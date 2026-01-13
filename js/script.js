@@ -396,9 +396,7 @@
       searchInput.addEventListener('input', renderLabs);
       filterSelect.addEventListener('change', renderLabs);
       renderLabs();
-    }.addEventListener('input', renderLabs);
-    filterSelect.addEventListener('change', renderLabs);
-    renderLabs();
+    });
   }
 
   // Contact form
@@ -477,7 +475,9 @@
   }
 
   // expose
-  window.ISKOVA = { async function(id){
+  window.ISKOVA = { 
+    renderCalendar,
+    confirmBooking: async function(id){
       const result = await Database.updateBookingStatus(id, 'confirmed');
       if(result.success){
         alert('Booking confirmed successfully!');
@@ -495,7 +495,5 @@
   };
 
   // Check auth on page load
-  checkAuth()   }
-    }
-  };
+  checkAuth();
 })();
