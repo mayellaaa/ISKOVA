@@ -25,6 +25,27 @@
   async function getReservations(){
     return await Database.getBookings();
   }
+
+  // Calculate lab status based on bookings
+  async function updateLabStatus() {
+    const bookings = await getReservations();
+    const today = new Date().toISOString().split('T')[0];
+    
+    labsData.forEach(lab => {
+      // Count how many bookings this lab has for today
+      const todayBookings = bookings.filter(b => b.lab === lab.name && b.date === today);
+      
+      if (todayBookings.length === 0) {
+        lab.status = 'available';
+      } else if (todayBookings.length <= 3) {
+        lab.status = 'limited';
+      } else {
+        lab.status = 'full';
+      }
+    });
+    
+    return labsData;
+  }
   
   async function saveReservation(item){
     const result = await Database.createBooking(item);
@@ -190,11 +211,10 @@
         })
         .map(b => b.lab);
 
-      console.log('Date:', date, 'Time:', time, 'Hour:', selectedHour);
-      console.log('Booked labs in this hour:', bookedLabs);
-      console.log('All bookings:', existingBookings);
+      // Update lab status based on today's bookings
+      await updateLabStatus();
 
-      // Filter available labs (only show labs that aren't booked)
+      // Filter available labs
       const availableLabs = labsData.filter(lab => {
         // If lab is already booked at this time, it's not available
         return !bookedLabs.includes(lab.name);
@@ -398,7 +418,9 @@
   // Labs page
   if(document.getElementById('labsList')){
     const searchInput = document.getElementById('searchLabs');
-    loadLabs().then(() => {
+    loadLabs().then(async () => {
+      await updateLabStatus();
+      
       function renderLabs(){
         const search = searchInput.value.toLowerCase();
         const filter = filterSelect.value;
