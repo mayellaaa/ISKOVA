@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="../assets/logo.svg" alt="ISKOVA logo" />
+      <span>ISKOVA</span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Home</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="labs.html">Labs</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="actions">
+      <span id="userGreeting" class="user-greeting"></span>
+      <a class="btn outline" href="#" id="logoutBtn">Log Out</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">My Dashboard</h2>
+    
+    <div class="dashboard-stats">
+      <div class="card stat-card">
+        <h3>Active Bookings</h3>
+        <p class="stat-number" id="activeCount">0</p>
+      </div>
+      <div class="card stat-card">
+        <h3>Total Reservations</h3>
+        <p class="stat-number" id="totalCount">0</p>
+      </div>
+      <div class="card stat-card">
+        <h3>Upcoming</h3>
+        <p class="stat-number" id="upcomingCount">0</p>
+      </div>
+    </div>
+
+    <h3 class="section-subtitle">Booking History</h3>
+    <div id="bookingHistory" class="booking-list"></div>
+    
+    <div class="cta" style="margin-top:24px">
+      <a class="btn primary" href="reserve.html">Make New Reservation</a>
+    </div>
+  </main>
+
+  <script src="../js/script.js"></script>
+</body>
+</html>

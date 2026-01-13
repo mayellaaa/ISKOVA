@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Contact Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="../assets/logo.svg" alt="ISKOVA logo" />
+      <span>ISKOVA</span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Home</a>
+      <a href="availability.html">Reservations</a>
+      <a href="labs.html">Labs</a>
+      <a href="contact.html" class="active">Contact</a>
+    </nav>
+    <div class="actions">
+      <a class="btn outline" href="login.html">Log In</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">Contact Us</h2>
+    
+    <div class="grid two">
+      <form id="contactForm" class="card pale">
+        <label class="field">
+          <span>Your Name</span>
+          <input type="text" id="contactName" required />
+        </label>
+        <label class="field">
+          <span>Email Address</span>
+          <input type="email" id="contactEmail" required />
+        </label>
+        <label class="field">
+          <span>Subject</span>
+          <input type="text" id="contactSubject" required />
+        </label>
+        <label class="field">
+          <span>Message</span>
+          <textarea id="contactMessage" rows="5" required style="padding:12px;border-radius:10px;border:1px solid #c7a2a7;background:#f9eef0;color:#2b1419;font-family:inherit;resize:vertical"></textarea>
+        </label>
+        <button class="btn primary" type="submit">Send Message</button>
+      </form>
+
+      <aside class="card">
+        <h3 style="margin-top:0">Get in Touch</h3>
+        <div class="contact-info">
+          <p><strong>Email:</strong> support@iskova.edu</p>
+          <p><strong>Phone:</strong> (123) 456-7890</p>
+          <p><strong>Office Hours:</strong><br/>Monday - Friday: 8:00 AM - 5:00 PM</p>
+          <p><strong>Location:</strong><br/>Computer Lab Building<br/>University Campus</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="../js/script.js"></script>
+</body>
+</html>

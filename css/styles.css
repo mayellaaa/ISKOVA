@@ -1,0 +1,162 @@
+/* Theme */
+:root{
+  --bg:#17090c;
+  --overlay: rgba(109,31,43,0.70); /* Burgundy overlay */
+  --primary:#7a2431;
+  --primary-600:#6a1f2b;
+  --text:#ffffff;
+  --muted:#e9d6d9;
+  --card:#2b1419;
+  --pale:#fdebed;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg)}
+
+/* Top bar */
+.topbar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(43,20,25,0.85);backdrop-filter:saturate(180%) blur(6px);border-bottom:1px solid #3a1b22}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand .logo{width:28px;height:28px}
+.nav{display:flex;gap:20px}
+.nav a{color:#f4e9eb;text-decoration:none}
+.nav a.active{font-weight:600}
+.actions .btn{padding:8px 14px}
+
+/* Hero background overlay */
+body.hero{background:
+  radial-gradient(ellipse at center, rgba(255,255,255,0.04), rgba(255,255,255,0)),
+  linear-gradient(var(--overlay),var(--overlay)),
+  url('../assets/lab-bg.svg');
+  background-size:cover; background-position:center;}
+.hero-content{max-width:900px;margin:80px auto 30px;padding:0 24px;text-align:center}
+.hero-content h1{font-size:48px;line-height:1.1;margin:0 0 10px}
+.hero-content .accent{color:#fff}
+.hero-content p{color:#f1dbde;margin:0 0 20px}
+.cta{margin-top:10px}
+
+/* Layout helpers */
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.grid.two{display:grid;grid-template-columns:1fr 360px;gap:22px}
+.row{display:flex}
+.gap{gap:16px}
+
+/* Cards */
+.card{background:var(--card);border-radius:12px;padding:18px;border:1px solid #432028;box-shadow:0 8px 20px rgba(0,0,0,0.25)}
+.card.feature{min-height:140px}
+.card.pale{background:var(--pale);color:#3a1b22;border-color:#e5b9bf}
+.system{align-self:start}
+.system-box{height:220px;background:#4b2229;border-radius:10px;border:2px solid #3a1b22}
+.availability-panel{max-height:400px;overflow-y:auto;padding:12px}
+.availability-item{background:rgba(255,255,255,0.08);border:1px solid #3a1b22;border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer;transition:all 0.2s}
+.availability-item:hover{background:rgba(255,255,255,0.15);transform:translateX(4px)}
+.availability-item.selected{background:var(--primary);border-color:#8a2b39}
+.availability-item h4{margin:0 0 6px;color:#fff;font-size:16px}
+.availability-item p{margin:0;color:#e9d6d9;font-size:13px}
+.availability-item .status-badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-top:6px}
+.availability-item .status-badge.available{background:#2d6a3e;color:#b7f0c5}
+.availability-item .status-badge.limited{background:#6a4e2d;color:#f0d8b7}
+.booking-section{max-width:600px;margin:0 auto}
+.booking-summary{background:rgba(255,255,255,0.05);padding:16px;border-radius:8px;margin-bottom:12px}
+.booking-summary p{margin:8px 0;color:#e9d6d9}
+.booking-summary strong{color:#fff}
+
+/* Manage Reservations */
+.reservations-list{display:grid;gap:18px;max-width:800px;margin:0 auto}
+.reservation-card{padding:24px}
+.reservation-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.reservation-header h3{margin:0;color:#fff;font-size:20px}
+.reservation-header .status-badge{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600}
+.reservation-header .status-badge.pending{background:#6a4e2d;color:#f0d8b7}
+.reservation-header .status-badge.confirmed{background:#2d6a3e;color:#b7f0c5}
+.reservation-details{margin:16px 0}
+.reservation-details p{margin:8px 0;color:#e9d6d9;font-size:14px}
+.reservation-details strong{color:#fff}
+.reservation-actions{display:flex;gap:12px;margin-top:18px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1)}
+.reservation-actions .btn{flex:1}
+
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:24px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:12px 18px;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer}
+.btn.primary{background:var(--primary);border-color:#8a2b39;color:#fff}
+.btn.outline{background:transparent;border-color:#a86570;color:#f7e9ec}
+.btn.subtle{background:#3a1b22;color:#f7e9ec;border-color:#4a2630}
+.btn.danger{background:#b33446;color:#fff;border-color:#842736}
+.btn:hover{filter:brightness(1.06)}
+
+/* Forms */
+.form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field span{font-size:14px;color:#f0dfe1}
+.field input, .field select{padding:12px;border-radius:10px;border:1px solid #c7a2a7;outline:none;background:#f9eef0;color:#2b1419}
+
+/* Section titles */
+.section-title{display:flex;align-items:center;gap:12px;margin:24px 0 12px;color:#fbecee}
+.section-title::before, .section-title::after{content:"";flex:1;height:2px;background:#7a2431;opacity:0.7}
+.section-title{justify-content:center;font-weight:700}
+
+/* Login page adjustments */
+.login-wrapper{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.logo-card{margin-bottom:18px}
+.logo-box{width:360px;height:160px;background:#e7e7e7;color:#333;display:flex;align-items:center;justify-content:center;border-radius:8px}
+
+/* Calendar */
+.calendar-header{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}
+.calendar-header .month{font-weight:700}
+.calendar{border:1px solid #4a2630;border-radius:12px;overflow:hidden}
+.calendar table{width:100%;border-collapse:collapse;background:#fdf6f7;color:#342026}
+.calendar th{background:#6a1f2b;color:#fff;padding:10px;font-weight:600}
+.calendar td{border:1px solid #e3c7cc;height:64px;vertical-align:top;padding:8px}
+.calendar .muted{opacity:0.45}
+.calendar .holiday{color:#9a2939;font-weight:600;font-size:12px}
+.calendar .today{outline:2px solid #6a1f2b}
+
+/* Dashboard */
+.user-greeting{color:#f4e9eb;margin-right:12px}
+.dashboard-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:32px}
+.stat-card{text-align:center;padding:24px}
+.stat-card h3{margin:0 0 8px;font-size:14px;font-weight:600;color:#f0dfe1}
+.stat-number{font-size:36px;font-weight:700;margin:0;color:#fff}
+.section-subtitle{color:#fbecee;margin:24px 0 16px;font-size:18px}
+.booking-list{display:grid;gap:12px}
+.booking-card{background:var(--card);border:1px solid #432028;border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.booking-card .info h4{margin:0 0 4px;color:#fff}
+.booking-card .info p{margin:0;color:#e9d6d9;font-size:14px}
+.booking-card .actions{display:flex;gap:8px}
+.booking-card .btn{padding:8px 12px;font-size:14px}
+
+/* Labs page */
+.filters{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.field.inline{flex-direction:row;align-items:center;margin-bottom:0}
+.field.inline span{min-width:120px;color:#f0dfe1}
+.field.inline input, .field.inline select{flex:1;max-width:280px}
+.labs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+.lab-card{background:var(--card);border:1px solid #432028;border-radius:12px;padding:18px}
+.lab-card h3{margin:0 0 8px;color:#fff}
+.lab-card .lab-info{margin:12px 0}
+.lab-card .lab-info p{margin:4px 0;color:#e9d6d9;font-size:14px}
+.lab-card .badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;margin-right:6px}
+.lab-card .badge.available{background:#2d6a3e;color:#b7f0c5}
+.lab-card .badge.limited{background:#6a4e2d;color:#f0d8b7}
+.lab-card .badge.full{background:#6a2d2d;color:#f0b7b7}
+
+/* Contact page */
+.contact-info p{color:#e9d6d9;line-height:1.6;margin:8px 0}
+
+/* Confirmation page */
+.confirmation-wrapper{max-width:680px;margin:0 auto;padding:24px 0}
+.confirmation-card{text-align:center;padding:32px}
+.success-icon{width:80px;height:80px;border-radius:50%;background:#2d6a3e;color:#fff;font-size:48px;line-height:80px;margin:0 auto 16px}
+.confirmation-card h1{margin:0 0 8px;color:#fff}
+.confirmation-card p{color:#e9d6d9;margin:0 0 24px}
+.booking-details{background:rgba(255,255,255,0.05);border-radius:10px;padding:18px;margin:24px 0;text-align:left}
+.booking-details h3{margin:0 0 12px;color:#fff;text-align:center}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
+.detail-row:last-child{border-bottom:none}
+.detail-row .label{color:#e9d6d9;font-weight:600}
+.detail-row .value{color:#fff}
+.qr-section{margin:24px 0}
+.qr-section h3{color:#fff;margin:0 0 12px}
+.qr-code{width:200px;height:200px;background:#fff;margin:0 auto;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#333;font-weight:600;font-size:14px}
+.qr-note{color:#e9d6d9;font-size:13px;margin:8px 0 0}
+.action-buttons{display:flex;gap:12px;justify-content:center;margin-top:24px}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Reserve Now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+  <main class="container">
+    <h2 class="section-title">Reserve Now</h2>
+    <div class="grid two">
+      <form id="reserveForm" class="card pale">
+        <label class="field"><span>Preferred Date</span>
+          <input type="date" id="dateSelect" required />
+        </label>
+        <label class="field"><span>Preferred Time</span>
+          <input type="time" id="timeSelect" required />
+        </label>
+        <button class="btn primary" type="submit">Check Availability</button>
+      </form>
+      <aside class="card system">
+        <h4>Available Labs:</h4>
+        <div id="availabilityPanel" class="availability-panel">
+          <p style="color:#6a1f2b;text-align:center;padding:20px">Select date and time to see available labs</p>
+        </div>
+      </aside>
+    </div>
+    
+    <div id="bookingSection" class="booking-section" style="display:none;margin-top:24px">
+      <h3 class="section-subtitle">Confirm Your Booking</h3>
+      <div class="card pale">
+        <div class="booking-summary">
+          <p><strong>Selected Lab:</strong> <span id="selectedLab"></span></p>
+          <p><strong>Date:</strong> <span id="selectedDate"></span></p>
+          <p><strong>Time:</strong> <span id="selectedTime"></span></p>
+          <p><strong>Assigned System:</strong> <span id="selectedSystem"></span></p>
+        </div>
+        <div class="row gap" style="margin-top:16px">
+          <button class="btn primary" id="confirmBookingBtn">Confirm Booking</button>
+          <button class="btn outline" id="cancelBookingBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="../js/script.js"></script>
+</body>
+</html>

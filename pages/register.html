@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body class="hero">
+  <main class="login-wrapper">
+    <div class="logo-card">
+      <div class="logo-box">Logo icon</div>
+    </div>
+    <form id="registerForm" class="form glass">
+      <label class="field">
+        <span>Full Name</span>
+        <input type="text" id="fullName" required placeholder="John Doe" />
+      </label>
+      <label class="field">
+        <span>Email Address</span>
+        <input type="email" id="email" required placeholder="john@example.com" />
+      </label>
+      <label class="field">
+        <span>Faculty User ID</span>
+        <input type="text" id="userId" required placeholder="FAC-12345" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" id="password" required />
+      </label>
+      <label class="field">
+        <span>Confirm Password</span>
+        <input type="password" id="confirmPassword" required />
+      </label>
+      <button class="btn primary" type="submit">Register</button>
+      <p style="text-align:center;margin-top:12px;color:#f0dfe1">
+        Already have an account? <a href="login.html" style="color:#fff">Log In</a>
+      </p>
+    </form>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

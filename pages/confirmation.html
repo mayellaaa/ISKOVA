@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Booking Confirmed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="../assets/logo.svg" alt="ISKOVA logo" />
+      <span>ISKOVA</span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Home</a>
+      <a href="availability.html">Reservations</a>
+      <a href="labs.html">Labs</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="actions">
+      <a class="btn outline" href="dashboard.html">Dashboard</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="confirmation-wrapper">
+      <div class="card confirmation-card">
+        <div class="success-icon">✓</div>
+        <h1>Booking Confirmed!</h1>
+        <p>Your lab reservation has been successfully confirmed.</p>
+
+        <div class="booking-details">
+          <h3>Reservation Details</h3>
+          <div class="detail-row">
+            <span class="label">Lab:</span>
+            <span id="confirmLab" class="value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Date:</span>
+            <span id="confirmDate" class="value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Time:</span>
+            <span id="confirmTime" class="value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">System:</span>
+            <span id="confirmSystem" class="value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Booking ID:</span>
+            <span id="confirmId" class="value">-</span>
+          </div>
+        </div>
+
+        <div class="qr-section">
+          <h3>Your QR Code</h3>
+          <div id="qrCode" class="qr-code"></div>
+          <p class="qr-note">Show this QR code when entering the lab</p>
+        </div>
+
+        <div class="action-buttons">
+          <a class="btn primary" href="dashboard.html">View Dashboard</a>
+          <a class="btn outline" href="reserve.html">Make Another Booking</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/script.js"></script>
+</body>
+</html>

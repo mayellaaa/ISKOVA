@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Computer Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="../assets/logo.svg" alt="ISKOVA logo" />
+      <span>ISKOVA</span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Home</a>
+      <a href="availability.html">Reservations</a>
+      <a href="labs.html" class="active">Labs</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="actions">
+      <a class="btn outline" href="login.html">Log In</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 class="section-title">Available Computer Labs</h2>
+    
+    <div class="filters">
+      <label class="field inline">
+        <span>Search</span>
+        <input type="text" id="searchLabs" placeholder="Search labs..." />
+      </label>
+      <label class="field inline">
+        <span>Filter by Capacity</span>
+        <select id="filterCapacity">
+          <option value="">All</option>
+          <option value="small">Small (10-20)</option>
+          <option value="medium">Medium (21-40)</option>
+          <option value="large">Large (41+)</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="labsList" class="labs-grid"></div>
+  </main>
+
+  <script src="../js/script.js"></script>
+</body>
+</html>

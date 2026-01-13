@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Log In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
+</head>
+<body class="hero">
+  <main class="login-wrapper">
+    <div class="logo-card">
+      <div class="logo-box">Logo icon</div>
+    </div>
+    <form id="loginForm" class="form glass">
+      <label class="field">
+        <span>Enter Faculty User ID Assigned</span>
+        <input type="text" id="userId" required placeholder="" />
+      </label>
+      <label class="field">
+        <span>Password?</span>
+        <input type="password" id="password" required />
+      </label>
+      <p style="text-align:right;margin:0 0 12px"><a href="forgot-password.html" style="color:#f0dfe1;font-size:14px">Forgot Password?</a></p>
+      <button class="btn primary" type="submit">Log In</button>
+      <p style="text-align:center;margin-top:12px;color:#f0dfe1">
+        Don't have an account? <a href="register.html" style="color:#fff">Register</a>
+      </p>
+    </form>
+  </main>
+  <script src="../js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ISKOVA – Book a Computer Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body class="hero">
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="assets/logo.svg" alt="ISKOVA logo" />
+      <span>ISKOVA</span>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="active">Home</a>
+      <a href="pages/availability.html">Reservations</a>
+      <a href="pages/labs.html">Labs</a>
+      <a href="pages/contact.html">Contact</a>
+    </nav>
+    <div class="actions">
+      <a class="btn outline" href="pages/login.html">Log In</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-content">
+      <h1>Book a <span class="accent">Computer Lab</span></h1>
+      <p>Easily reserve a computer lab for your class or study session.</p>
+      <div class="cta">
+        <a class="btn primary" href="pages/reserve.html">Reserve Now</a>
+      </div>
+    </section>
+
+    <section class="features container">
+      <div class="card feature">
+        <h3>Check Availability</h3>
+        <p>View available lab and time slots.</p>
+        <a class="btn subtle" href="pages/availability.html">Open Calendar</a>
+      </div>
+      <div class="card feature">
+        <h3>Manage Reservations</h3>
+        <p>Edit or cancel your bookings easily.</p>
+        <a class="btn subtle" href="pages/manage.html">Manage</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
