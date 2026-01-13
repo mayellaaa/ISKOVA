@@ -18,21 +18,7 @@ const Auth = {
 
       if (authError) throw authError;
 
-      // Insert user profile into users table
-      const { error: profileError } = await supabaseClient
-        .from('users')
-        .insert([
-          { 
-            id: authData.user.id,
-            email: email,
-            full_name: fullName,
-            user_id: userId,
-            created_at: new Date().toISOString()
-          }
-        ]);
-
-      if (profileError) throw profileError;
-
+      // The trigger will automatically create the user profile
       return { success: true, user: authData.user };
     } catch (error) {
       console.error('Registration error:', error);
@@ -113,6 +99,22 @@ const Database = {
       return data || [];
     } catch (error) {
       console.error('Get bookings error:', error);
+      return [];
+    }
+  },
+
+  // Get ALL bookings (for checking availability)
+  async getAllBookings() {
+    try {
+      const { data, error } = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Get all bookings error:', error);
       return [];
     }
   },

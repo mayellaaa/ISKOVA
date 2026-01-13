@@ -13,6 +13,22 @@
   <script src="../js/auth.js"></script>
 </head>
 <body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="../assets/logo.svg" alt="ISKOVA logo" />
+      <span>ISKOVA</span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Home</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="reserve.html" class="active">Reserve</a>
+      <a href="manage.html">Manage</a>
+    </nav>
+    <div class="actions">
+      <span id="userGreeting" class="user-greeting"></span>
+      <button id="logoutBtn" class="btn outline">Logout</button>
+    </div>
+  </header>
   <main class="container">
     <h2 class="section-title">Reserve Now</h2>
     <div class="grid two">
@@ -40,7 +56,7 @@
           <p><strong>Selected Lab:</strong> <span id="selectedLab"></span></p>
           <p><strong>Date:</strong> <span id="selectedDate"></span></p>
           <p><strong>Time:</strong> <span id="selectedTime"></span></p>
-          <p><strong>Assigned System:</strong> <span id="selectedSystem"></span></p>
+          <p><strong>Location:</strong> <span id="selectedSystem"></span></p>
         </div>
         <div class="row gap" style="margin-top:16px">
           <button class="btn primary" id="confirmBookingBtn">Confirm Booking</button>

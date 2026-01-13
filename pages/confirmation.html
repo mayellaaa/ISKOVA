@@ -20,12 +20,13 @@
     </div>
     <nav class="nav">
       <a href="../index.html">Home</a>
-      <a href="availability.html">Reservations</a>
-      <a href="labs.html">Labs</a>
-      <a href="contact.html">Contact</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="reserve.html">Reserve</a>
+      <a href="manage.html">Manage</a>
     </nav>
     <div class="actions">
-      <a class="btn outline" href="dashboard.html">Dashboard</a>
+      <span id="userGreeting" class="user-greeting"></span>
+      <button id="logoutBtn" class="btn outline">Logout</button>
     </div>
   </header>
 
@@ -51,7 +52,7 @@
             <span id="confirmTime" class="value">-</span>
           </div>
           <div class="detail-row">
-            <span class="label">System:</span>
+            <span class="label">Location:</span>
             <span id="confirmSystem" class="value">-</span>
           </div>
           <div class="detail-row">
@@ -74,6 +75,8 @@
     </div>
   </main>
 
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/auth.js"></script>
   <script src="../js/script.js"></script>
 </body>
 </html>
