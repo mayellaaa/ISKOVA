@@ -25,6 +25,27 @@
   async function getReservations(){
     return await Database.getBookings();
   }
+
+  // Calculate lab status based on bookings
+  async function updateLabStatus() {
+    const bookings = await getReservations();
+    const today = new Date().toISOString().split('T')[0];
+    
+    labsData.forEach(lab => {
+      // Count how many bookings this lab has for today
+      const todayBookings = bookings.filter(b => b.lab === lab.name && b.date === today);
+      
+      if (todayBookings.length === 0) {
+        lab.status = 'available';
+      } else if (todayBookings.length <= 3) {
+        lab.status = 'limited';
+      } else {
+        lab.status = 'full';
+      }
+    });
+    
+    return labsData;
+  }
   
   async function saveReservation(item){
     const result = await Database.createBooking(item);
@@ -173,6 +194,9 @@
       const bookedLabs = existingBookings
         .filter(b => b.date === date && b.time === time)
         .map(b => b.lab);
+
+      // Update lab status based on today's bookings
+      await updateLabStatus();
 
       // Filter available labs
       const availableLabs = labsData.filter(lab => {
@@ -357,7 +381,9 @@
   // Labs page
   if(document.getElementById('labsList')){
     const searchInput = document.getElementById('searchLabs');
-    loadLabs().then(() => {
+    loadLabs().then(async () => {
+      await updateLabStatus();
+      
       function renderLabs(){
         const search = searchInput.value.toLowerCase();
         const filter = filterSelect.value;
