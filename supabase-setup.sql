@@ -1,5 +1,6 @@
 -- ISKOVA Lab Booking System - Supabase Database Setup
 -- Run this SQL in your Supabase SQL Editor
+-- This script can be run multiple times safely
 
 -- 1. CREATE USERS TABLE
 CREATE TABLE IF NOT EXISTS public.users (
@@ -11,7 +12,9 @@ CREATE TABLE IF NOT EXISTS public.users (
 );
 
 -- 2. CREATE LABS TABLE
-CREATE TABLE IF NOT EXISTS public.labs (
+DROP TABLE IF EXISTS public.labs CASCADE;
+
+CREATE TABLE public.labs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT UNIQUE NOT NULL,
   capacity INTEGER NOT NULL,
@@ -39,33 +42,59 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.labs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 
--- 5. SECURITY RULES FOR USERS (drop old ones first)
+-- 5. SECURITY RULES FOR USERS
+-- Drop old policy names first
 DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
 DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
 
-CREATE POLICY "user_read_own" ON public.users FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "user_update_own" ON public.users FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "user_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
+-- Create policies if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='users' AND policyname='user_read_own') THEN
+    CREATE POLICY "user_read_own" ON public.users FOR SELECT USING (auth.uid() = id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='users' AND policyname='user_update_own') THEN
+    CREATE POLICY "user_update_own" ON public.users FOR UPDATE USING (auth.uid() = id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='users' AND policyname='user_insert_own') THEN
+    CREATE POLICY "user_insert_own" ON public.users FOR INSERT WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
 
--- 6. SECURITY RULES FOR LABS (drop old ones first)
+-- 6. SECURITY RULES FOR LABS
 DROP POLICY IF EXISTS "Anyone can view labs" ON public.labs;
 
-CREATE POLICY "lab_read_all" ON public.labs FOR SELECT USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='labs' AND policyname='lab_read_all') THEN
+    CREATE POLICY "lab_read_all" ON public.labs FOR SELECT USING (true);
+  END IF;
+END $$;
 
--- 7. SECURITY RULES FOR BOOKINGS (drop old ones first)
+-- 7. SECURITY RULES FOR BOOKINGS
 DROP POLICY IF EXISTS "Users can view own bookings" ON public.bookings;
 DROP POLICY IF EXISTS "Users can create own bookings" ON public.bookings;
 DROP POLICY IF EXISTS "Users can update own bookings" ON public.bookings;
 DROP POLICY IF EXISTS "Users can delete own bookings" ON public.bookings;
 
-CREATE POLICY "booking_read_own" ON public.bookings FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "booking_create_own" ON public.bookings FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "booking_update_own" ON public.bookings FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "booking_delete_own" ON public.bookings FOR DELETE USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='bookings' AND policyname='booking_read_own') THEN
+    CREATE POLICY "booking_read_own" ON public.bookings FOR SELECT USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='bookings' AND policyname='booking_create_own') THEN
+    CREATE POLICY "booking_create_own" ON public.bookings FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='bookings' AND policyname='booking_update_own') THEN
+    CREATE POLICY "booking_update_own" ON public.bookings FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='bookings' AND policyname='booking_delete_own') THEN
+    CREATE POLICY "booking_delete_own" ON public.bookings FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
--- 8. ADD SAMPLE LABS
-DELETE FROM public.labs;
+-- 8. ADD SAMPLE LABS (only if not exist)
 INSERT INTO public.labs (name, capacity, computers, status, building, floor) VALUES
   ('Lab A', 50, 50, 'available', 'Southwing', '5th Floor'),
   ('Lab B', 50, 50, 'available', 'Southwing', '5th Floor'),
