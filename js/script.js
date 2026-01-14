@@ -187,7 +187,7 @@
       if(!date || !time){ 
         alert('Please select both date and time'); 
         return; 
-      }
+      } 
 
       // Normalize time format to match database (add :00 seconds if not present)
       if(time.length === 5) {
@@ -415,51 +415,78 @@
     }
   }
 
-  // Labs page
-  if(document.getElementById('labsList')){
-    const searchInput = document.getElementById('searchLabs');
-    loadLabs().then(async () => {
-      await updateLabStatus();
-      
-      function renderLabs(){
-        const search = searchInput.value.toLowerCase();
-        const filter = filterSelect.value;
-        
-        const filtered = labsData.filter(lab => {
-          const matchesSearch = lab.name.toLowerCase().includes(search) || 
-                               lab.building.toLowerCase().includes(search);
-          const matchesFilter = !filter || lab.type === filter;
-          return matchesSearch && matchesFilter;
-        });
+// Labs page
+if (document.getElementById('labsList')) {
 
-        const labsList = document.getElementById('labsList');
-        if(filtered.length === 0){
-          labsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;grid-column:1/-1">No labs found</p>';
-          return;
-        }
+  const labsList = document.getElementById('labsList');
+  const searchInput = document.getElementById('searchLabs');
+  const filterSelect = document.getElementById('filterCapacity');
 
-        labsList.innerHTML = filtered.map(lab => {
-          const badgeClass = lab.status === 'available' ? 'available' : 
-                            lab.status === 'limited' ? 'limited' : 'full';
-          return `
-            <div class="lab-card">
-              <h3>${lab.name}</h3>
-              <span class="badge ${badgeClass}">${lab.status.toUpperCase()}</span>
-              <div class="lab-info">
-                <p><strong>Capacity:</strong> ${lab.capacity} students</p>
-                <p><strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
-              </div>
-              <a class="btn primary" href="reserve.html" style="width:100%;margin-top:12px">Book Now</a>
-            </div>
-          `;
-        }).join('');
-      }
+  loadLabs().then(async () => {
+    await updateLabStatus();
+    renderLabs();
+  });
 
-      searchInput.addEventListener('input', renderLabs);
-      filterSelect.addEventListener('change', renderLabs);
-      renderLabs();
+  function renderLabs() {
+    const search = searchInput.value.toLowerCase();
+    const filter = filterSelect.value;
+
+    const filteredLabs = labsData.filter(lab => {
+      const matchesSearch =
+        lab.name.toLowerCase().includes(search) ||
+        lab.building.toLowerCase().includes(search);
+
+      /*const matchesCapacity =
+        !filter || lab.type === filter;
+      */
+
+      let computedType = 'large';
+        if (lab.capacity <= 20) computedType = 'small';
+        else if (lab.capacity <= 40) computedType = 'medium';
+
+      const matchesCapacity =
+        !filter || computedType === filter;
+
+      return matchesSearch && matchesCapacity;
     });
+
+    if (filteredLabs.length === 0) {
+      labsList.innerHTML = `
+        <p style="text-align:center;color:#e9d6d9;">
+          No laboratory rooms found
+        </p>`;
+      return;
+    }
+
+    labsList.innerHTML = filteredLabs.map(lab => {
+      const statusClass =
+        lab.status === 'available' ? 'available' :
+        lab.status === 'limited' ? 'limited' : 'full';
+
+      return `
+        <div class="lab-card">
+          <h3>${lab.name}</h3>
+          <span class="badge ${statusClass}">
+            ${lab.status.toUpperCase()}
+          </span>
+
+          <div class="lab-info">
+            <p><strong>Capacity:</strong> ${lab.capacity} students</p>
+            <p><strong>Computers:</strong> ${lab.computers} units</p>
+            <p><strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
+          </div>
+
+          <a href="reserve.html" class="btn primary">
+            Reserve this Lab
+          </a>
+        </div>
+      `;
+    }).join('');
   }
+
+  searchInput.addEventListener('input', renderLabs);
+  filterSelect.addEventListener('change', renderLabs);
+}
 
   // Contact form
   const contactForm = document.getElementById('contactForm');

@@ -195,11 +195,18 @@ const Database = {
       console.error('Get labs error:', error);
       // Return fallback data if database not set up
       return [
-        {name:"Lab A", capacity:40, computers:40, type:"large", status:"available", building:"CS Building", floor:"2nd Floor"},
-        {name:"Lab B", capacity:25, computers:25, type:"medium", status:"limited", building:"CS Building", floor:"3rd Floor"},
-        {name:"Lab C", capacity:15, computers:15, type:"small", status:"available", building:"Engineering", floor:"1st Floor"},
-        {name:"Lab D", capacity:50, computers:50, type:"large", status:"full", building:"Library", floor:"Basement"},
-        {name:"Lab E", capacity:20, computers:20, type:"small", status:"available", building:"Science Building", floor:"4th Floor"}
+        { name: "Lab A", capacity: 15, computers: 15, type: "small",  status: "available", building: "Southwing", floor: "5th Floor" },
+        { name: "Lab B", capacity: 20, computers: 20, type: "small",  status: "available", building: "Southwing", floor: "5th Floor" },
+
+        { name: "Lab C", capacity: 25, computers: 25, type: "medium", status: "available",  building: "Southwing", floor: "5th Floor" },
+        { name: "Lab D", capacity: 30, computers: 30, type: "medium", status: "available", building: "Southwing", floor: "5th Floor" },
+        { name: "Lab E", capacity: 35, computers: 35, type: "medium", status: "available", building: "Southwing", floor: "5th Floor" },
+        { name: "Lab F", capacity: 40, computers: 40, type: "medium", status: "available",  building: "Southwing", floor: "5th Floor" },
+
+        { name: "Lab G", capacity: 45, computers: 45, type: "large",  status: "available", building: "Southwing", floor: "5th Floor" },
+        { name: "Lab H", capacity: 50, computers: 50, type: "large",  status: "available", building: "Southwing", floor: "5th Floor" },
+        { name: "Lab I", capacity: 60, computers: 60, type: "large",  status: "available", building: "Southwing", floor: "5th Floor" },
+        { name: "Lab J", capacity: 80, computers: 80, type: "large",  status: "available", building: "Southwing", floor: "5th Floor" }
       ];
     }
   }
