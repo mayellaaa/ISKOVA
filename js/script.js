@@ -189,7 +189,13 @@
       if(!date || !time){ 
         alert('Please select both date and time'); 
         return; 
-      } 
+      }
+
+      // Validate that time out is not earlier than time
+      if(timeOut && timeOut <= time) {
+        alert('Preferred Time Out must be after Preferred Time');
+        return;
+      }
 
       // Normalize time format to match database (add :00 seconds if not present)
       if(time.length === 5) {
