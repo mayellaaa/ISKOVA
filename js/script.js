@@ -107,6 +107,17 @@
         alert('Please fill all fields'); 
         return; 
       }
+      
+      // Validate password requirements
+      const hasLength = password.length >= 8 && password.length <= 12;
+      const hasNumber = /\d/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      
+      if(!hasLength || !hasNumber || !hasSpecial) {
+        alert('Password must have:\n• 8-12 characters\n• At least one number\n• At least one special character');
+        return;
+      }
+      
       if(password !== confirmPassword){ 
         alert('Passwords do not match'); 
         return; 
@@ -186,13 +197,13 @@
       let time = timeSelect.value;
       const timeOutSelect = document.getElementById('timeOutSelect');
       let timeOut = timeOutSelect ? timeOutSelect.value : '';
-      if(!date || !time){ 
-        alert('Please select both date and time'); 
+      if(!date || !time || !timeOut){ 
+        alert('Please select date, time, and time out'); 
         return; 
       }
 
-      // Validate that time out is not earlier than time
-      if(timeOut && timeOut <= time) {
+      // Validate that time out is not earlier than or equal to time
+      if(timeOut <= time) {
         alert('Preferred Time Out must be after Preferred Time');
         return;
       }
@@ -266,8 +277,8 @@
       document.getElementById('selectedSystem').textContent = `${lab.building}, ${lab.floor}`;
       bookingSection.style.display = 'block';
       
-      // Store for confirmation
-      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, timeOut });
+      // Store for confirmation - use time_out to match Supabase column name
+      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, time_out: timeOut });
     }
 
     // Confirm booking button
@@ -347,7 +358,7 @@
               </div>
               <div class="reservation-details">
                 <p><strong>Date:</strong> ${booking.date}</p>
-                <p><strong>Time:</strong> ${booking.time}</p>
+                <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
                 <p><strong>Booking ID:</strong> ${booking.id}</p>
               </div>
               <div class="reservation-actions">
@@ -533,9 +544,23 @@ if (document.getElementById('labsList')) {
   }
 
   // Calendar
+  let bookingsByDate = {}; // Store bookings organized by date
+
   function monthName(y,m){
     return new Date(y,m,1).toLocaleString(undefined,{ month:'long' });
   }
+
+  async function loadBookingsByDate(){
+    const bookings = await getReservations();
+    bookingsByDate = {};
+    bookings.forEach(booking => {
+      if(!bookingsByDate[booking.date]){
+        bookingsByDate[booking.date] = [];
+      }
+      bookingsByDate[booking.date].push(booking);
+    });
+  }
+
   function buildCalendar(y,m){ // m: 0-11
     const first = new Date(y,m,1);
     const startDay = first.getDay(); // 0=Sun
@@ -553,8 +578,15 @@ if (document.getElementById('labsList')) {
           cell = `<td class="muted">${prevDay}</td>`;
         } else if(day <= daysInMonth){
           const isToday = (new Date().getFullYear()===y && new Date().getMonth()===m && new Date().getDate()===day);
+          const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const bookingsForDate = bookingsByDate[dateStr] || [];
+          const hasBookings = bookingsForDate.length > 0;
           const holiday = (m===0 && day===1) ? '<div class="holiday">New Year\'s Day</div>' : '';
-          cell = `<td class="${isToday?'today':''}"><div>${day}</div>${holiday}</td>`;
+          let reservationIndicator = '';
+          if(hasBookings){
+            reservationIndicator = `<div class="reservation-indicator" data-date="${dateStr}" style="cursor:pointer">${bookingsForDate.length} booking${bookingsForDate.length > 1 ? 's' : ''}</div>`;
+          }
+          cell = `<td class="${isToday?'today':''} ${hasBookings ? 'has-booking' : ''}" data-date="${dateStr}" data-bookings="${bookingsForDate.length}"><div>${day}</div>${holiday}${reservationIndicator}</td>`;
           day++;
         } else {
           const nextDay = day - daysInMonth;
@@ -576,17 +608,83 @@ if (document.getElementById('labsList')) {
     let year = today.getFullYear();
     let month = today.getMonth();
 
-    function update(){
+    async function update(){
+      await loadBookingsByDate();
       cal.innerHTML = buildCalendar(year,month);
       header.innerHTML = `
         <button class="btn outline" aria-label="Prev" id="prevMonth">◀</button>
         <span class="month">${monthName(year,month)} ${year}</span>
         <button class="btn outline" aria-label="Next" id="nextMonth">▶</button>
       `;
+      
+      // Add event listeners to date cells
+      const dateCells = cal.querySelectorAll('td[data-date]');
+      dateCells.forEach(cell => {
+        cell.addEventListener('click', async () => {
+          const dateStr = cell.getAttribute('data-date');
+          await showBookingDetails(dateStr);
+        });
+      });
+
       document.getElementById('prevMonth').onclick = ()=>{ month = (month+11)%12; if(month===11) year--; update(); };
       document.getElementById('nextMonth').onclick = ()=>{ month = (month+1)%12; if(month===0) year++; update(); };
     }
     update();
+  }
+
+  async function showBookingDetails(dateStr){
+    const bookings = bookingsByDate[dateStr] || [];
+    const modal = document.getElementById('bookingDetailsModal');
+    const bookingsList = document.getElementById('bookingsList');
+    const dateDisplay = document.getElementById('selectedDateDisplay');
+    
+    if(!modal){
+      // Create modal if it doesn't exist
+      const newModal = document.createElement('div');
+      newModal.id = 'bookingDetailsModal';
+      newModal.className = 'booking-details-modal';
+      newModal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Bookings for <span id="selectedDateDisplay"></span></h2>
+            <button class="close-btn" id="closeModal">&times;</button>
+          </div>
+          <div id="bookingsList"></div>
+        </div>
+      `;
+      document.body.appendChild(newModal);
+      document.getElementById('closeModal').addEventListener('click', () => {
+        newModal.classList.remove('active');
+      });
+      newModal.addEventListener('click', (e) => {
+        if(e.target === newModal){
+          newModal.classList.remove('active');
+        }
+      });
+    }
+
+    const modal2 = document.getElementById('bookingDetailsModal');
+    const dateDisplay2 = document.getElementById('selectedDateDisplay');
+    const bookingsList2 = document.getElementById('bookingsList');
+    
+    // Format date for display
+    const dateObj = new Date(dateStr + 'T00:00:00');
+    const dateFormatted = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    dateDisplay2.textContent = dateFormatted;
+    
+    if(bookings.length === 0){
+      bookingsList2.innerHTML = '<div class="no-bookings">No bookings for this date</div>';
+    } else {
+      bookingsList2.innerHTML = bookings.map(booking => `
+        <div class="booking-item">
+          <h4>${booking.lab}</h4>
+          <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
+          <p><strong>Status:</strong> ${booking.status || 'pending'}</p>
+        </div>
+      `).join('');
+    }
+    
+    modal2.classList.add('active');
   }
 
   // expose

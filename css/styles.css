@@ -85,10 +85,21 @@ body.hero{background:
 .btn:hover{filter:brightness(1.06)}
 
 /* Forms */
-.form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px)}
+.form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px); display:flex; flex-direction:column}
+.form.glass .btn.primary{align-self:center}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.field span{font-size:14px;color:#4a2630}
+.field span{font-size:14px;color:#f0dfe1}
 .field input, .field select{padding:12px;border-radius:10px;border:1px solid #c7a2a7;outline:none;background:#f9eef0;color:#2b1419}
+.password-field{display:flex;align-items:center;position:relative}
+.password-field input{flex:1;border-radius:10px 0 0 10px}
+.toggle-password{position:absolute;right:12px;background:none;border:none;cursor:pointer;padding:6px;color:#2b1419;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
+.eye-icon{width:20px;height:20px}
+.password-requirements{margin-top:8px;padding:12px;background:rgba(255,255,255,0.08);border-radius:8px;border:1px solid rgba(255,255,255,0.1)}
+.requirement-title{margin:0 0 8px;font-size:12px;font-weight:600;color:#e9d6d9}
+.password-requirements ul{list-style:none;margin:0;padding:0}
+.requirement{font-size:12px;color:#e9d6d9;margin:6px 0;display:flex;align-items:center;gap:6px}
+.requirement .check{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#6a2d2d;color:#f0b7b7;border-radius:3px;font-size:10px;font-weight:bold}
+.requirement.valid .check{background:#2d6a3e;color:#b7f0c5}
 
 /* Section titles */
 .section-title{display:flex;align-items:center;gap:12px;margin:24px 0 12px;color:#fbecee}
@@ -98,7 +109,7 @@ body.hero{background:
 /* Login page adjustments */
 .login-wrapper{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .logo-card{margin-bottom:18px}
-.logo-box{width:360px;height:160px;background:#e7e7e7;color:#333;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.logo-box{width:280px;height:280px;border-radius:50%;object-fit:contain}
 
 /* Calendar */
 .calendar-header{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}
@@ -106,13 +117,28 @@ body.hero{background:
 .calendar{border:1px solid #4a2630;border-radius:12px;overflow:hidden}
 .calendar table{width:100%;border-collapse:collapse;background:#fdf6f7;color:#342026}
 .calendar th{background:#6a1f2b;color:#fff;padding:10px;font-weight:600}
-.calendar td{border:1px solid #e3c7cc;height:64px;vertical-align:top;padding:8px}
+.calendar td{border:1px solid #e3c7cc;height:64px;vertical-align:top;padding:8px;position:relative;cursor:pointer;transition:background-color 0.2s}
+.calendar td:hover{background:#f5e8eb}
+.calendar td.clickable{cursor:pointer}
 .calendar .muted{opacity:0.45}
 .calendar .holiday{color:#9a2939;font-weight:600;font-size:12px}
 .calendar .today{outline:2px solid #6a1f2b}
+.calendar .reservation-indicator{font-size:11px;color:#6a1f2b;font-weight:600;margin-top:4px;padding:2px 4px;background:#e5b9bf;border-radius:3px;display:inline-block}
+.calendar .no-reservation{color:#999;font-size:11px}
 
 /* Dashboard */
 .user-greeting{color:#f4e9eb;margin-right:12px}
+.booking-details-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center}
+.booking-details-modal.active{display:flex}
+.booking-details-modal .modal-content{background:var(--card);border:1px solid #432028;border-radius:12px;padding:24px;max-width:500px;max-height:80vh;overflow-y:auto;color:#fff}
+.booking-details-modal .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.booking-details-modal .modal-header h2{margin:0;font-size:20px}
+.booking-details-modal .close-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.booking-details-modal .close-btn:hover{color:#e9d6d9}
+.booking-details-modal .booking-item{background:rgba(255,255,255,0.05);border:1px solid #432028;border-radius:8px;padding:12px;margin-bottom:12px}
+.booking-details-modal .booking-item h4{margin:0 0 8px;color:#fff}
+.booking-details-modal .booking-item p{margin:4px 0;color:#e9d6d9;font-size:13px}
+.booking-details-modal .no-bookings{text-align:center;padding:24px;color:#e9d6d9}
 .dashboard-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:32px}
 .stat-card{text-align:center;padding:24px}
 .stat-card h3{margin:0 0 8px;font-size:14px;font-weight:600;color:#f0dfe1}
