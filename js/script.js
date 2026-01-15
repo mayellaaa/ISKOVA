@@ -69,17 +69,36 @@
   // Update header with user info
   const userGreeting = document.getElementById('userGreeting');
   const logoutBtn = document.getElementById('logoutBtn');
+  const loginLink = document.getElementById('loginLink');
   
   if(userGreeting || logoutBtn){
     getUser().then(user => {
-      if(userGreeting){
-        userGreeting.textContent = user ? `Hello, ${user.user_metadata?.full_name || user.email}` : '';
-      }
-      if(logoutBtn){
-        logoutBtn.addEventListener('click', async (e)=>{
-          e.preventDefault();
-          await logout();
-        });
+      if(user){
+        // User is logged in
+        if(userGreeting){
+          userGreeting.textContent = `Hello, ${user.user_metadata?.full_name || user.email}`;
+        }
+        if(logoutBtn){
+          logoutBtn.style.display = 'inline-block';
+          logoutBtn.addEventListener('click', async (e)=>{
+            e.preventDefault();
+            await logout();
+          });
+        }
+        if(loginLink){
+          loginLink.style.display = 'none';
+        }
+      } else {
+        // User is not logged in
+        if(userGreeting){
+          userGreeting.textContent = '';
+        }
+        if(logoutBtn){
+          logoutBtn.style.display = 'none';
+        }
+        if(loginLink){
+          loginLink.style.display = 'inline-block';
+        }
       }
     });
   }
