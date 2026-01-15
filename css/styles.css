@@ -57,8 +57,8 @@ body.hero{background:
 .availability-item .status-badge.limited{background:#6a4e2d;color:#f0d8b7}
 .booking-section{max-width:600px;margin:0 auto}
 .booking-summary{background:rgba(255,255,255,0.05);padding:16px;border-radius:8px;margin-bottom:12px}
-.booking-summary p{margin:8px 0;color:#e9d6d9}
-.booking-summary strong{color:#fff}
+.booking-summary p{margin:8px 0;color:#110d0e}
+.booking-summary strong{color:#8a2b39}
 
 /* Manage Reservations */
 .reservations-list{display:grid;gap:18px;max-width:800px;margin:0 auto}
@@ -79,7 +79,7 @@ body.hero{background:
 /* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:12px 18px;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer}
 .btn.primary{background:var(--primary);border-color:#8a2b39;color:#fff}
-.btn.outline{background:transparent;border-color:#a86570;color:#f7e9ec}
+.btn.outline{background:transparent;border-color:#a86570;color:#8a2b39}
 .btn.subtle{background:#3a1b22;color:#f7e9ec;border-color:#4a2630}
 .btn.danger{background:#b33446;color:#fff;border-color:#842736}
 .btn:hover{filter:brightness(1.06)}
@@ -87,7 +87,7 @@ body.hero{background:
 /* Forms */
 .form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px)}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.field span{font-size:14px;color:#f0dfe1}
+.field span{font-size:14px;color:#4a2630}
 .field input, .field select{padding:12px;border-radius:10px;border:1px solid #c7a2a7;outline:none;background:#f9eef0;color:#2b1419}
 
 /* Section titles */
