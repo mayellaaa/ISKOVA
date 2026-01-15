@@ -416,14 +416,25 @@
         document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
         document.getElementById('confirmId').textContent = booking.id || 'N/A';
         
-        // Simple QR code visualization
-        document.getElementById('qrCode').innerHTML = `
-          <div style="width:100%;height:100%;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:2px;padding:10px">
-            ${Array.from({length:64}, (_,i) => 
-              `<div style="background:${Math.random()>0.5?'#000':'#fff'};border-radius:2px"></div>`
-            ).join('')}
-          </div>
-        `;
+        // Generate real QR code that links to the full receipt
+        const qrCodeDiv = document.getElementById('qrCode');
+        qrCodeDiv.innerHTML = ''; // Clear previous content
+        
+        // QR code data: encode relative URL to confirmation page with booking ID
+        // This will work when deployed to a web server
+        const qrData = `./confirmation.html?id=${booking.id}`;
+        
+        // Generate QR code using QRCode library
+        if(typeof QRCode !== 'undefined'){
+          new QRCode(qrCodeDiv, {
+            text: qrData,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }
       }
     }
     
