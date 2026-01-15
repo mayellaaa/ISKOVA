@@ -184,6 +184,8 @@
       e.preventDefault();
       const date = dateSelect.value;
       let time = timeSelect.value;
+      const timeOutSelect = document.getElementById('timeOutSelect');
+      let timeOut = timeOutSelect ? timeOutSelect.value : '';
       if(!date || !time){ 
         alert('Please select both date and time'); 
         return; 
@@ -243,22 +245,23 @@
             // Store selected lab
             selectedLabData = JSON.parse(this.getAttribute('data-lab'));
             // Show booking section
-            showBookingSummary(selectedLabData, date, time);
+            showBookingSummary(selectedLabData, date, time, timeOut);
           });
         });
       }
     });
 
     // Show booking summary
-    function showBookingSummary(lab, date, time){
+    function showBookingSummary(lab, date, time, timeOut){
       document.getElementById('selectedLab').textContent = lab.name;
       document.getElementById('selectedDate').textContent = date;
       document.getElementById('selectedTime').textContent = time;
+      document.getElementById('selectedTimeOut').textContent = timeOut;
       document.getElementById('selectedSystem').textContent = `${lab.building}, ${lab.floor}`;
       bookingSection.style.display = 'block';
       
       // Store for confirmation
-      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time });
+      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, timeOut });
     }
 
     // Confirm booking button
