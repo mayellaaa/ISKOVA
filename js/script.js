@@ -396,32 +396,38 @@
   if(document.getElementById('confirmLab')){
     const urlParams = new URLSearchParams(window.location.search);
     const bookingId = urlParams.get('id');
-    let booking;
     
-    if(bookingId){
-      booking = getReservations().find(b => b.id === bookingId);
-    } else {
-      try{
-        booking = JSON.parse(localStorage.getItem('lastBooking') || 'null');
-      }catch{}
-    }
-
-    if(booking){
-      document.getElementById('confirmLab').textContent = booking.lab;
-      document.getElementById('confirmDate').textContent = booking.date;
-      document.getElementById('confirmTime').textContent = booking.time;
-      document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
-      document.getElementById('confirmId').textContent = booking.id || 'N/A';
+    async function loadConfirmationDetails(){
+      let booking = null;
       
-      // Simple QR code visualization
-      document.getElementById('qrCode').innerHTML = `
-        <div style="width:100%;height:100%;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:2px;padding:10px">
-          ${Array.from({length:64}, (_,i) => 
-            `<div style="background:${Math.random()>0.5?'#000':'#fff'};border-radius:2px"></div>`
-          ).join('')}
-        </div>
-      `;
+      if(bookingId){
+        const reservations = await getReservations();
+        booking = reservations.find(b => b.id === bookingId);
+      } else {
+        try{
+          booking = JSON.parse(localStorage.getItem('lastBooking') || 'null');
+        }catch{}
+      }
+
+      if(booking){
+        document.getElementById('confirmLab').textContent = booking.lab;
+        document.getElementById('confirmDate').textContent = booking.date;
+        document.getElementById('confirmTime').textContent = booking.time;
+        document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
+        document.getElementById('confirmId').textContent = booking.id || 'N/A';
+        
+        // Simple QR code visualization
+        document.getElementById('qrCode').innerHTML = `
+          <div style="width:100%;height:100%;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:2px;padding:10px">
+            ${Array.from({length:64}, (_,i) => 
+              `<div style="background:${Math.random()>0.5?'#000':'#fff'};border-radius:2px"></div>`
+            ).join('')}
+          </div>
+        `;
+      }
     }
+    
+    loadConfirmationDetails();
   }
 
 // Labs page
