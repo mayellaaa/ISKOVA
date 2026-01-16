@@ -79,6 +79,21 @@ const Auth = {
       console.error('Reset password error:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  // Update password after reset
+  async updatePassword(newPassword) {
+    try {
+      const { data, error } = await supabaseClient.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error('Update password error:', error);
+      return { success: false, error: error.message };
+    }
   }
 };
 

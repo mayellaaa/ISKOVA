@@ -204,6 +204,66 @@
     });
   }
 
+  // Reset Password Form (on reset-password page)
+  async function handleResetPasswordPage() {
+    const resetForm = document.getElementById('resetPasswordForm');
+    const resetMessage = document.getElementById('resetMessage');
+    const messageText = document.getElementById('messageText');
+
+    // Check if user has a valid session (they should be coming from email link)
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (!session) {
+      messageText.textContent = 'Invalid or expired reset link. Please request a new password reset.';
+      messageText.style.color = '#ff6b6b';
+      return;
+    }
+
+    // Show the form if session is valid
+    resetForm.style.display = 'block';
+    resetMessage.style.display = 'none';
+
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+      if (!newPassword || !confirmPassword) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      // Validate password requirements
+      const hasLength = newPassword.length >= 8 && newPassword.length <= 12;
+      const hasNumber = /\d/.test(newPassword);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
+
+      if (!hasLength || !hasNumber || !hasSpecial) {
+        alert('Password must have:\n• 8-12 characters\n• At least one number\n• At least one special character');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      const result = await Auth.updatePassword(newPassword);
+      if (result.success) {
+        alert('Password reset successfully! Redirecting to login...');
+        await Auth.logout();
+        location.href = 'login.html';
+      } else {
+        alert('Failed to reset password: ' + result.error);
+      }
+    });
+  }
+
+  // Call reset password handler if on reset-password page
+  if (window.location.pathname.includes('reset-password.html')) {
+    handleResetPasswordPage();
+  }
+
   // Reserve
   const reserveForm = document.getElementById('reserveForm');
   if(reserveForm){
@@ -212,6 +272,10 @@
     const availabilityPanel = document.getElementById('availabilityPanel');
     const bookingSection = document.getElementById('bookingSection');
     let selectedLabData = null;
+
+    // Set minimum date to today (prevent booking past dates)
+    const today = new Date().toISOString().split('T')[0];
+    dateSelect.setAttribute('min', today);
 
     // Load labs data
     loadLabs();
@@ -226,6 +290,14 @@
       if(!date || !time || !timeOut){ 
         alert('Please select date, time, and time out'); 
         return; 
+      }
+
+      // Validate that date is not in the past
+      const selectedDate = new Date(date);
+      const todayDate = new Date(today);
+      if(selectedDate < todayDate) {
+        alert('Cannot book on a past date. Please select today or a future date.');
+        return;
       }
 
       // Validate that time out is not earlier than or equal to time
@@ -378,10 +450,14 @@
       // Expire old pending bookings
       await Database.expireOldPendingBookings();
       
-      if(bookings.length === 0){
-        reservationsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;padding:40px">No reservations yet. <a href="reserve.html" style="color:#fff">Make your first reservation</a></p>';
+      // Filter out past bookings (only show current and future bookings)
+      const today = new Date().toISOString().split('T')[0];
+      const futureBookings = bookings.filter(b => b.date >= today);
+      
+      if(futureBookings.length === 0){
+        reservationsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;padding:40px">No upcoming reservations. <a href="reserve.html" style="color:#fff">Make a new reservation</a></p>';
       } else {
-        reservationsList.innerHTML = bookings.map(booking => {
+        reservationsList.innerHTML = futureBookings.map(booking => {
           const isPending = booking.status === 'pending';
           const isExpired = booking.status === 'expired';
           const statusClass = isExpired ? 'expired' : (isPending ? 'pending' : 'confirmed');
@@ -425,19 +501,23 @@
   // Dashboard
   if(document.getElementById('bookingHistory')){
     Database.getBookings().then(bookings => {
-      const activeCount = bookings.filter(b => b.status === 'confirmed').length;
-      const totalCount = bookings.length;
-      const upcomingCount = bookings.filter(b => new Date(b.date) > new Date()).length;
+      // Filter out past bookings (only show current and future bookings)
+      const today = new Date().toISOString().split('T')[0];
+      const futureBookings = bookings.filter(b => b.date >= today);
+      
+      const activeCount = futureBookings.filter(b => b.status === 'confirmed').length;
+      const totalCount = futureBookings.length;
+      const upcomingCount = futureBookings.filter(b => new Date(b.date) > new Date()).length;
 
       document.getElementById('activeCount').textContent = activeCount;
       document.getElementById('totalCount').textContent = totalCount;
       document.getElementById('upcomingCount').textContent = upcomingCount;
 
       const historyEl = document.getElementById('bookingHistory');
-      if(bookings.length === 0){
-        historyEl.innerHTML = '<p style="color:#e9d6d9;text-align:center">No bookings yet. <a href="reserve.html" style="color:#fff">Make your first reservation</a></p>';
+      if(futureBookings.length === 0){
+        historyEl.innerHTML = '<p style="color:#e9d6d9;text-align:center">No upcoming bookings. <a href="reserve.html" style="color:#fff">Make a new reservation</a></p>';
       } else {
-        historyEl.innerHTML = bookings.reverse().map(b => `
+        historyEl.innerHTML = futureBookings.reverse().map(b => `
           <div class="booking-card">
             <div class="info">
               <h4>${b.lab}</h4>
@@ -630,8 +710,6 @@ if (document.getElementById('labsList')) {
   async function loadBookingsByDate(){
     try {
       const bookings = await getReservations();
-      console.log('DEBUG: Total bookings fetched:', bookings.length);
-      console.log('DEBUG: Raw bookings:', bookings);
       
       bookingsByDate = {};
       bookings.forEach(booking => {
@@ -643,18 +721,15 @@ if (document.getElementById('labsList')) {
           dateStr = dateStr.split(' ')[0];
         }
         
-        console.log('DEBUG: Processing booking - original date:', booking.date, '-> parsed date:', dateStr);
-        
         if(!bookingsByDate[dateStr]){
           bookingsByDate[dateStr] = [];
         }
         bookingsByDate[dateStr].push(booking);
       });
       
-      console.log('DEBUG: Bookings organized by date:', bookingsByDate);
       return Object.keys(bookingsByDate).length; // Return count of dates with bookings
     } catch (error) {
-      console.error('DEBUG: Error loading bookings:', error);
+      console.error('Error loading bookings:', error);
       return 0;
     }
   }
@@ -666,6 +741,13 @@ if (document.getElementById('labsList')) {
     const prevMonthDays = new Date(y,m,0).getDate();
     const rows = [];
     let day = 1;
+    
+    // Get today's date for comparison
+    const today = new Date();
+    const todayYear = today.getFullYear();
+    const todayMonth = today.getMonth();
+    const todayDate = today.getDate();
+    
     for(let r=0;r<6;r++){
       const cells = [];
       for(let c=0;c<7;c++){
@@ -675,7 +757,8 @@ if (document.getElementById('labsList')) {
           const prevDay = prevMonthDays - (startDay-index-1);
           cell = `<td class="muted">${prevDay}</td>`;
         } else if(day <= daysInMonth){
-          const isToday = (new Date().getFullYear()===y && new Date().getMonth()===m && new Date().getDate()===day);
+          const isToday = (todayYear===y && todayMonth===m && todayDate===day);
+          const isPast = (y < todayYear) || (y === todayYear && m < todayMonth) || (y === todayYear && m === todayMonth && day < todayDate);
           const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
           const bookingsForDate = bookingsByDate[dateStr] || [];
           const hasBookings = bookingsForDate.length > 0;
@@ -684,7 +767,8 @@ if (document.getElementById('labsList')) {
           if(hasBookings){
             reservationIndicator = `<div class="reservation-indicator" data-date="${dateStr}" style="cursor:pointer">${bookingsForDate.length} booking${bookingsForDate.length > 1 ? 's' : ''}</div>`;
           }
-          cell = `<td class="${isToday?'today':''} ${hasBookings ? 'has-booking' : ''}" data-date="${dateStr}" data-bookings="${bookingsForDate.length}"><div>${day}</div>${holiday}${reservationIndicator}</td>`;
+          const pastClass = isPast ? 'past-date' : '';
+          cell = `<td class="${isToday?'today':''} ${hasBookings ? 'has-booking' : ''} ${pastClass}" data-date="${dateStr}" data-bookings="${bookingsForDate.length}" ${isPast ? 'style="cursor:not-allowed;opacity:0.5"' : ''}><div>${day}</div>${holiday}${reservationIndicator}</td>`;
           day++;
         } else {
           const nextDay = day - daysInMonth;
@@ -712,9 +796,7 @@ if (document.getElementById('labsList')) {
     let month = today.getMonth();
 
     async function update(){
-      console.log('DEBUG: Updating calendar for', monthName(year, month), year);
       const dateCount = await loadBookingsByDate();
-      console.log('DEBUG: Dates with bookings:', dateCount);
       
       cal.innerHTML = buildCalendar(year,month);
       header.innerHTML = `
@@ -725,11 +807,13 @@ if (document.getElementById('labsList')) {
       
       // Add event listeners to date cells
       const dateCells = cal.querySelectorAll('td[data-date]');
-      console.log('DEBUG: Date cells found:', dateCells.length);
       dateCells.forEach(cell => {
         cell.addEventListener('click', async () => {
+          // Don't allow clicking on past dates
+          if(cell.classList.contains('past-date')) {
+            return;
+          }
           const dateStr = cell.getAttribute('data-date');
-          console.log('DEBUG: Clicked date:', dateStr);
           await showBookingDetails(dateStr);
         });
       });
@@ -752,15 +836,12 @@ if (document.getElementById('labsList')) {
         .on('postgres_changes', 
           { event: '*', schema: 'public', table: 'bookings' },
           (payload) => {
-            console.log('DEBUG: Booking change detected:', payload);
             update(); // Refresh calendar when any booking changes
           }
         )
-        .subscribe((status) => {
-          console.log('DEBUG: Subscription status:', status);
-        });
+        .subscribe();
     } catch (error) {
-      console.warn('DEBUG: Real-time subscription not available (Realtime may not be enabled):', error);
+      console.warn('Real-time subscription not available:', error);
     }
   }
 
