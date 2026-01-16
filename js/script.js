@@ -23,7 +23,7 @@
   }
 
   async function getReservations(){
-    return await Database.getBookings();
+    return await Database.getAllBookings();
   }
 
   // Calculate lab status based on bookings
@@ -360,7 +360,7 @@
   if(document.getElementById('reservationsList')){
     const reservationsList = document.getElementById('reservationsList');
     
-    getReservations().then(bookings => {
+    Database.getBookings().then(bookings => {
       if(bookings.length === 0){
         reservationsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;padding:40px">No reservations yet. <a href="reserve.html" style="color:#fff">Make your first reservation</a></p>';
       } else {
@@ -393,7 +393,7 @@
 
   // Dashboard
   if(document.getElementById('bookingHistory')){
-    getReservations().then(bookings => {
+    Database.getBookings().then(bookings => {
       const activeCount = bookings.filter(b => b.status === 'active').length;
       const totalCount = bookings.length;
       const upcomingCount = bookings.filter(b => new Date(b.date) > new Date()).length;
@@ -597,20 +597,42 @@ if (document.getElementById('labsList')) {
 
   // Calendar
   let bookingsByDate = {}; // Store bookings organized by date
+  let bookingsSubscription = null; // Store subscription for cleanup
 
   function monthName(y,m){
     return new Date(y,m,1).toLocaleString(undefined,{ month:'long' });
   }
 
   async function loadBookingsByDate(){
-    const bookings = await getReservations();
-    bookingsByDate = {};
-    bookings.forEach(booking => {
-      if(!bookingsByDate[booking.date]){
-        bookingsByDate[booking.date] = [];
-      }
-      bookingsByDate[booking.date].push(booking);
-    });
+    try {
+      const bookings = await getReservations();
+      console.log('DEBUG: Total bookings fetched:', bookings.length);
+      console.log('DEBUG: Raw bookings:', bookings);
+      
+      bookingsByDate = {};
+      bookings.forEach(booking => {
+        // Extract just the date part from the timestamp
+        let dateStr = booking.date;
+        
+        // If date contains a space, it's a timestamp - extract just the date portion
+        if(dateStr && dateStr.includes(' ')) {
+          dateStr = dateStr.split(' ')[0];
+        }
+        
+        console.log('DEBUG: Processing booking - original date:', booking.date, '-> parsed date:', dateStr);
+        
+        if(!bookingsByDate[dateStr]){
+          bookingsByDate[dateStr] = [];
+        }
+        bookingsByDate[dateStr].push(booking);
+      });
+      
+      console.log('DEBUG: Bookings organized by date:', bookingsByDate);
+      return Object.keys(bookingsByDate).length; // Return count of dates with bookings
+    } catch (error) {
+      console.error('DEBUG: Error loading bookings:', error);
+      return 0;
+    }
   }
 
   function buildCalendar(y,m){ // m: 0-11
@@ -656,12 +678,20 @@ if (document.getElementById('labsList')) {
   function renderCalendar(calendarId, headerId){
     const cal = document.getElementById(calendarId);
     const header = document.getElementById(headerId);
+    if(!cal || !header) {
+      console.error('DEBUG: Calendar or header element not found');
+      return;
+    }
+    
     const today = new Date();
     let year = today.getFullYear();
     let month = today.getMonth();
 
     async function update(){
-      await loadBookingsByDate();
+      console.log('DEBUG: Updating calendar for', monthName(year, month), year);
+      const dateCount = await loadBookingsByDate();
+      console.log('DEBUG: Dates with bookings:', dateCount);
+      
       cal.innerHTML = buildCalendar(year,month);
       header.innerHTML = `
         <button class="btn outline" aria-label="Prev" id="prevMonth">◀</button>
@@ -671,9 +701,11 @@ if (document.getElementById('labsList')) {
       
       // Add event listeners to date cells
       const dateCells = cal.querySelectorAll('td[data-date]');
+      console.log('DEBUG: Date cells found:', dateCells.length);
       dateCells.forEach(cell => {
         cell.addEventListener('click', async () => {
           const dateStr = cell.getAttribute('data-date');
+          console.log('DEBUG: Clicked date:', dateStr);
           await showBookingDetails(dateStr);
         });
       });
@@ -681,7 +713,31 @@ if (document.getElementById('labsList')) {
       document.getElementById('prevMonth').onclick = ()=>{ month = (month+11)%12; if(month===11) year--; update(); };
       document.getElementById('nextMonth').onclick = ()=>{ month = (month+1)%12; if(month===0) year++; update(); };
     }
+    
+    // Initial load
     update();
+    
+    // Set up real-time subscription for bookings
+    if(bookingsSubscription) {
+      bookingsSubscription.unsubscribe();
+    }
+    
+    try {
+      bookingsSubscription = supabaseClient
+        .channel('bookings-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'bookings' },
+          (payload) => {
+            console.log('DEBUG: Booking change detected:', payload);
+            update(); // Refresh calendar when any booking changes
+          }
+        )
+        .subscribe((status) => {
+          console.log('DEBUG: Subscription status:', status);
+        });
+    } catch (error) {
+      console.warn('DEBUG: Real-time subscription not available (Realtime may not be enabled):', error);
+    }
   }
 
   async function showBookingDetails(dateStr){
