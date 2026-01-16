@@ -41,25 +41,6 @@ iskova-labs/
 - **QR Codes** - Get QR codes for confirmed bookings
 - **Contact Form** - Get in touch with support
 
-## 🎨 Design
-
-- Clean, modern burgundy/dark theme
-- Responsive layout
-- Poppins font from Google Fonts
-- No external dependencies or frameworks
-
-## 💾 Data Storage
-
-Uses browser localStorage for:
-- User sessions (`iskova.user`)
-- Booking data (`iskova.reservations`)
-- Temporary booking info (`lastBooking`)
-
-## 🔧 Setup
-
-1. Clone or download this repository
-2. Open `index.html` in a web browser
-3. No build process or dependencies required!
 
 ## 📄 Pages Overview
 
@@ -74,21 +55,3 @@ Uses browser localStorage for:
 | `pages/reserve.html` | Create new booking |
 | `pages/confirmation.html` | Booking confirmation screen |
 | `pages/contact.html` | Contact form |
-
-## 🛠️ Technologies
-
-- HTML5
-- CSS3 (with CSS Variables)
-- Vanilla JavaScript (ES6+)
-- LocalStorage API
-
-## 📱 Browser Support
-
-Works on all modern browsers that support:
-- ES6 JavaScript
-- CSS Grid/Flexbox
-- LocalStorage
-
----
-
-**ISKOVA Lab Booking System** - Simple, Fast, Effective

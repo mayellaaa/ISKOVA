@@ -382,7 +382,7 @@
         reservationsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;padding:40px">No reservations yet. <a href="reserve.html" style="color:#fff">Make your first reservation</a></p>';
       } else {
         reservationsList.innerHTML = bookings.map(booking => {
-          const isPending = booking.status === 'active';
+          const isPending = booking.status === 'pending';
           const isExpired = booking.status === 'expired';
           const statusClass = isExpired ? 'expired' : (isPending ? 'pending' : 'confirmed');
           const statusText = isExpired ? 'Expired (Not Confirmed)' : (isPending ? 'Pending Confirmation' : 'Confirmed');
@@ -425,7 +425,7 @@
   // Dashboard
   if(document.getElementById('bookingHistory')){
     Database.getBookings().then(bookings => {
-      const activeCount = bookings.filter(b => b.status === 'active').length;
+      const activeCount = bookings.filter(b => b.status === 'confirmed').length;
       const totalCount = bookings.length;
       const upcomingCount = bookings.filter(b => new Date(b.date) > new Date()).length;
 
@@ -514,13 +514,6 @@
               correctLevel: QRCode.CorrectLevel.M
             });
             
-            // Show info if running locally
-            if(currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1') || currentOrigin.includes('file://')){
-              const localWarning = document.createElement('div');
-              localWarning.style.cssText = 'margin-top:12px;padding:10px;background:#fff3cd;color:#856404;border-radius:6px;font-size:12px;';
-              localWarning.innerHTML = '<strong>Note:</strong> QR code will work after deploying to a web server (Netlify, Vercel, GitHub Pages, etc.)';
-              qrCodeDiv.parentElement.appendChild(localWarning);
-            }
           } catch(err) {
             console.error('QR Code generation error:', err);
             qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code generation failed. Please use Booking ID: ' + booking.id + '</p>';

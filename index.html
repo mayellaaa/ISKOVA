@@ -15,12 +15,13 @@
 <body class="hero">
   <header class="topbar">
     <div class="brand">
-      <img class="logo" src="assets/logo.svg" alt="ISKOVA logo" />
+      <img class="logo" src="assets/logo.png" alt="ISKOVA logo" />
       <span>ISKOVA</span>
     </div>
     <nav class="nav">
       <a href="index.html" class="active">Home</a>
-      <a href="pages/availability.html">Reservations</a>
+      <a href="pages/availability.html">Check Availability</a>
+      <a href="pages/reserve.html">Reserve</a>
       <a href="pages/labs.html">Labs</a>
       <a href="pages/dashboard.html">Dashboard</a>
       <a href="pages/manage.html">Manage</a>
@@ -54,8 +55,95 @@
         <a class="btn subtle" href="pages/manage.html">Manage</a>
       </div>
     </section>
+
+    <section class="why-iskova container" style="margin-top: 32px; margin-bottom: 32px;">
+      <h2 style="text-align: center; font-size: 28px; margin-bottom: 12px; color: #ffffff;">Why Use ISKOVA?</h2>
+      <p style="text-align: center; margin-bottom: 24px; color: #ffffff; font-size: 16px;">Our reservation system is designed to make booking computer labs as simple and efficient as possible.</p>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div style="background: #f4e9eb; text-align: center; padding: 20px; border-radius: 8px;">
+          <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: #f0e5e7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#601313" stroke-width="1.5" stroke-linecap="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+              <line x1="8" y1="14" x2="8" y2="18"/>
+              <line x1="12" y1="14" x2="12" y2="18"/>
+              <line x1="16" y1="14" x2="16" y2="18"/>
+            </svg>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px; color: #601313;">Easy Scheduling</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Browse available dates and times with our intuitive calendar interface. See lab availability at a glance.</p>
+        </div>
+        <div style="background: #f4e9eb; text-align: center; padding: 20px; border-radius: 8px;">
+          <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: #f0e5e7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#601313" stroke-width="1.5" stroke-linecap="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="2" y1="17" x2="22" y2="17"/>
+              <line x1="10" y1="20" x2="14" y2="20"/>
+            </svg>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px; color: #601313;">Multiple Labs</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Choose from various computer labs across campus, each with different capacities and equipment.</p>
+        </div>
+        <div style="background: #f4e9eb; text-align: center; padding: 20px; border-radius: 8px;">
+          <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: #f0e5e7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#601313" stroke-width="1.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px; color: #601313;">Flexible Time Slots</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Book labs for the exact duration you need, from one-hour sessions to full-day reservations.</p>
+        </div>
+        <div style="background: #f4e9eb; text-align: center; padding: 20px; border-radius: 8px;">
+          <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: #f0e5e7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#601313" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <circle cx="12" cy="18" r="1" fill="#601313"/>
+            </svg>
+          </div>
+          <h3 style="font-size: 16px; margin-bottom: 8px; color: #601313;">Secure Booking</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Get instant confirmation with QR code access passes that verify your reservation at lab entry.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works container" style="margin-top: 32px; margin-bottom: 32px;">
+      <h2 style="text-align: center; font-size: 28px; margin-bottom: 12px; color: #ffffff;">How It Works</h2>
+      <p style="text-align: center; margin-bottom: 24px; color: #ffffff; font-size: 16px;">Follow these simple steps to reserve your computer lab session.</p>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+        <div style="background: #f4e9eb; padding: 24px; border-radius: 8px;">
+          <div style="font-size: 40px; font-weight: bold; color: #947578;">01</div>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0; color: #000000;">Select Date & Time</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Choose your preferred date and available time slot from our booking calendar.</p>
+        </div>
+        <div style="background: #f4e9eb; padding: 24px; border-radius: 8px;">
+          <div style="font-size: 40px; font-weight: bold; color: #947578;">02</div>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0; color: #000000;">Choose a Lab</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Browse available labs, see their capacity, and select the one that fits your needs.</p>
+        </div>
+        <div style="background: #f4e9eb; padding: 24px; border-radius: 8px;">
+          <div style="font-size: 40px; font-weight: bold; color: #947578;">03</div>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0; color: #000000;">Confirm Booking</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Review your reservation details and confirm to receive your QR code access pass.</p>
+        </div>
+        <div style="background: #f4e9eb; padding: 24px; border-radius: 8px;">
+          <div style="font-size: 40px; font-weight: bold; color: #947578;">04</div>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0; color: #000000;">Access the Lab</h3>
+          <p style="font-size: 13px; color: #000000; margin: 0; line-height: 1.5;">Present your QR code at the lab entrance for quick and easy check-in.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin: 32px auto 48px; background-color: #f4e9eb; padding: 48px 24px; border-radius: 8px; text-align: center; max-width: 1200px;">
+      <h2 style="font-size: 28px; margin-bottom: 16px; color: #3a1b22;">Ready to Book Your Lab?</h2>
+      <p style="font-size: 16px; color: #3a1b22; margin-bottom: 32px;">Start by browsing available labs to view your existing reservations.</p>
+      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="pages/labs.html" class="btn primary">Browse Available Labs</a>
+      </div>
+    </section>
   </main>
 
   <script src="js/script.js"></script>
 </body>
-</html>
+</html> 

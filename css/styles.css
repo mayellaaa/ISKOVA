@@ -26,8 +26,8 @@ body{margin:0;font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,Helv
 body.hero{background:
   radial-gradient(ellipse at center, rgba(255,255,255,0.04), rgba(255,255,255,0)),
   linear-gradient(var(--overlay),var(--overlay)),
-  url('../assets/lab-bg.svg');
-  background-size:cover; background-position:center;}
+  url('../assets/login-bg.png');
+  background-size:cover; background-position:center; background-repeat:no-repeat; background-attachment:fixed;}
 .hero-content{max-width:900px;margin:80px auto 30px;padding:0 24px;text-align:center}
 .hero-content h1{font-size:48px;line-height:1.1;margin:0 0 10px}
 .hero-content .accent{color:#fff}
@@ -85,11 +85,17 @@ body.hero{background:
 .btn:hover{filter:brightness(1.06)}
 
 /* Forms */
-.form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px); display:flex; flex-direction:column}
+.form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px); display:flex; flex-direction:column; max-height:85vh; overflow-y:auto}
+.form.glass::-webkit-scrollbar{width:8px}
+.form.glass::-webkit-scrollbar-track{background:rgba(255,255,255,0.1);border-radius:10px}
+.form.glass::-webkit-scrollbar-thumb{background:rgba(122,36,49,0.6);border-radius:10px}
+.form.glass::-webkit-scrollbar-thumb:hover{background:#7a2431cc}
 .form.glass .btn.primary{align-self:center}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.field span{font-size:14px;color:#842736}
+.field span{font-size:14px;color:#651b26cc}
 .field input, .field select{padding:12px;border-radius:10px;border:1px solid #c7a2a7;outline:none;background:#f9eef0;color:#2b1419}
+.form.glass .field span{color:#ffffff}
+.form.glass .field input{color:#ffffff;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3)}
 .password-field{display:flex;align-items:center;position:relative}
 .password-field input{flex:1;border-radius:10px 0 0 10px}
 .toggle-password{position:absolute;right:12px;background:none;border:none;cursor:pointer;padding:6px;color:#2b1419;display:flex;align-items:center;justify-content:center;width:32px;height:32px}
