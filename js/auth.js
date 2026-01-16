@@ -132,7 +132,7 @@ const Database = {
         time: bookingData.time,
         time_out: bookingData.time_out,
         system: bookingData.system,
-        status: 'active',
+        status: 'pending',
         created_at: new Date().toISOString()
       };
 
