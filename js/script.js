@@ -28,22 +28,29 @@
 
   // Calculate lab status based on bookings
   async function updateLabStatus() {
-    const bookings = await getReservations();
+    // Use ALL bookings to compute global lab status
+    const bookings = await Database.getAllBookings();
     const today = new Date().toISOString().split('T')[0];
-    
+
     labsData.forEach(lab => {
       // Count how many bookings this lab has for today
       const todayBookings = bookings.filter(b => b.lab === lab.name && b.date === today);
-      
-      if (todayBookings.length === 0) {
+      const bookedCount = todayBookings.length;
+      const capacity = lab.capacity || 0;
+      const fillRatio = capacity ? (bookedCount / capacity) : 0;
+
+      // Status based on proportion of capacity
+      if (bookedCount === 0) {
         lab.status = 'available';
-      } else if (todayBookings.length <= 3) {
+      } else if (capacity && fillRatio >= 0.8) {
+        lab.status = 'full';
+      } else if (capacity && fillRatio >= 0.5) {
         lab.status = 'limited';
       } else {
-        lab.status = 'full';
+        lab.status = 'available';
       }
     });
-    
+
     return labsData;
   }
   
