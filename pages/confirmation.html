@@ -9,7 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- QR Code library with fallback -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" 
+          onerror="this.onerror=null; this.src='https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js'"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/auth.js"></script>
 </head>
@@ -34,6 +36,10 @@
   <main class="container">
     <div class="confirmation-wrapper">
       <div class="card confirmation-card">
+        <div class="print-button">
+          <button id="printBtn" class="btn outline" onclick="window.print()">🖨️ Print Receipt</button>
+        </div>
+
         <div class="success-icon">✓</div>
         <h1>Booking Confirmed!</h1>
         <p>Your lab reservation has been successfully confirmed.</p>
@@ -41,16 +47,20 @@
         <div class="booking-details">
           <h3>Reservation Details</h3>
           <div class="detail-row">
-            <span class="label">Lab:</span>
+            <span class="label">Lab Name:</span>
             <span id="confirmLab" class="value">-</span>
           </div>
           <div class="detail-row">
-            <span class="label">Date:</span>
+            <span class="label">Booking Date:</span>
             <span id="confirmDate" class="value">-</span>
           </div>
           <div class="detail-row">
-            <span class="label">Time:</span>
+            <span class="label">Time Slot:</span>
             <span id="confirmTime" class="value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">End Time:</span>
+            <span id="confirmEndTime" class="value">-</span>
           </div>
           <div class="detail-row">
             <span class="label">Location:</span>
@@ -60,12 +70,29 @@
             <span class="label">Booking ID:</span>
             <span id="confirmId" class="value">-</span>
           </div>
+          <div class="detail-row">
+            <span class="label">Status:</span>
+            <span id="confirmStatus" class="value badge-confirmed">Confirmed</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Booked By:</span>
+            <span id="confirmBookedBy" class="value">-</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Booking Date/Time:</span>
+            <span id="confirmBookedAt" class="value">-</span>
+          </div>
         </div>
 
         <div class="qr-section">
-          <h3>Your QR Code</h3>
+          <h3>Verification QR Code</h3>
+          <p class="qr-note">Show this QR code at the lab entrance to verify your booking</p>
           <div id="qrCode" class="qr-code"></div>
-          <p class="qr-note">Show this QR code when entering the lab</p>
+        </div>
+
+        <div class="receipt-footer">
+          <p><strong>Important:</strong> Please arrive 15 minutes before your scheduled time.</p>
+          <p>If you need to cancel or modify this booking, visit your <a href="dashboard.html">Dashboard</a>.</p>
         </div>
 
         <div class="action-buttons">

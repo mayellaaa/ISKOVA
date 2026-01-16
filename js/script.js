@@ -424,27 +424,60 @@
         document.getElementById('confirmLab').textContent = booking.lab;
         document.getElementById('confirmDate').textContent = booking.date;
         document.getElementById('confirmTime').textContent = booking.time;
+        document.getElementById('confirmEndTime').textContent = booking.time_out || 'N/A';
         document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
         document.getElementById('confirmId').textContent = booking.id || 'N/A';
+        document.getElementById('confirmStatus').textContent = booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Confirmed';
         
-        // Generate real QR code that links to the full receipt
+        // Get current user
+        const user = await getUser();
+        document.getElementById('confirmBookedBy').textContent = user?.user_metadata?.full_name || user?.email || 'N/A';
+        
+        // Format the booking creation timestamp
+        const bookedAtTime = new Date().toLocaleString(undefined, { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        document.getElementById('confirmBookedAt').textContent = bookedAtTime;
+        
+        // Generate real QR code with embedded booking data
         const qrCodeDiv = document.getElementById('qrCode');
         qrCodeDiv.innerHTML = ''; // Clear previous content
         
-        // QR code data: encode relative URL to confirmation page with booking ID
-        // This will work when deployed to a web server
-        const qrData = `./confirmation.html?id=${booking.id}`;
+        // Create URL to confirmation page - will work when deployed
+        const currentOrigin = window.location.origin;
+        const qrData = `${currentOrigin}/pages/confirmation.html?id=${booking.id}`;
         
         // Generate QR code using QRCode library
         if(typeof QRCode !== 'undefined'){
-          new QRCode(qrCodeDiv, {
-            text: qrData,
-            width: 200,
-            height: 200,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-          });
+          try {
+            new QRCode(qrCodeDiv, {
+              text: qrData,
+              width: 200,
+              height: 200,
+              colorDark: '#000000',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            // Show info if running locally
+            if(currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1') || currentOrigin.includes('file://')){
+              const localWarning = document.createElement('div');
+              localWarning.style.cssText = 'margin-top:12px;padding:10px;background:#fff3cd;color:#856404;border-radius:6px;font-size:12px;';
+              localWarning.innerHTML = '<strong>Note:</strong> QR code will work after deploying to a web server (Netlify, Vercel, GitHub Pages, etc.)';
+              qrCodeDiv.parentElement.appendChild(localWarning);
+            }
+          } catch(err) {
+            console.error('QR Code generation error:', err);
+            qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code generation failed. Please use Booking ID: ' + booking.id + '</p>';
+          }
+        } else {
+          console.error('QRCode library not loaded');
+          qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code library not loaded. Please use Booking ID: ' + booking.id + '</p>';
         }
       }
     }

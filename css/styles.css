@@ -171,7 +171,9 @@ body.hero{background:
 
 /* Confirmation page */
 .confirmation-wrapper{max-width:680px;margin:0 auto;padding:24px 0}
-.confirmation-card{text-align:center;padding:32px}
+.confirmation-card{text-align:center;padding:32px;position:relative}
+.print-button{position:absolute;top:15px;right:15px}
+.print-button .btn{padding:8px 12px;font-size:13px}
 .success-icon{width:80px;height:80px;border-radius:50%;background:#2d6a3e;color:#fff;font-size:48px;line-height:80px;margin:0 auto 16px}
 .confirmation-card h1{margin:0 0 8px;color:#fff}
 .confirmation-card p{color:#e9d6d9;margin:0 0 24px}
@@ -179,10 +181,27 @@ body.hero{background:
 .booking-details h3{margin:0 0 12px;color:#fff;text-align:center}
 .detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
 .detail-row:last-child{border-bottom:none}
-.detail-row .label{color:#e9d6d9;font-weight:600}
-.detail-row .value{color:#fff}
-.qr-section{margin:24px 0}
+.detail-row .label{color:#e9d6d9;font-weight:600;min-width:150px}
+.detail-row .value{color:#fff;text-align:right;flex:1}
+.detail-row .value.badge-confirmed{background:#2d6a3e;padding:2px 8px;border-radius:4px;display:inline-block}
+.qr-section{margin:24px 0;padding:20px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1)}
 .qr-section h3{color:#fff;margin:0 0 12px}
-.qr-code{width:200px;height:200px;background:#fff;margin:0 auto;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#333;font-weight:600;font-size:14px}
-.qr-note{color:#e9d6d9;font-size:13px;margin:8px 0 0}
+.qr-code{width:200px;height:200px;background:#fff;margin:0 auto;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#333;font-weight:600;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.qr-note{color:#e9d6d9;font-size:13px;margin:12px 0 0}
+.receipt-footer{background:rgba(255,165,0,0.1);border-left:4px solid #ffa500;padding:14px;border-radius:4px;margin:24px 0;text-align:left}
+.receipt-footer p{margin:6px 0;color:#e9d6d9;font-size:13px}
+.receipt-footer a{color:#fff;text-decoration:underline}
 .action-buttons{display:flex;gap:12px;justify-content:center;margin-top:24px}
+
+@media print{
+  .topbar,.action-buttons,.print-button{display:none !important}
+  .confirmation-wrapper{padding:0;margin:0}
+  .confirmation-card{padding:20px;box-shadow:none}
+  body{background:#fff;color:#000}
+  .detail-row .label{color:#333}
+  .detail-row .value{color:#000}
+  .booking-details{background:#f5f5f5;border:1px solid #ddd;color:#000}
+  .qr-section{border-color:#ddd}
+  .qr-note{color:#666}
+  .receipt-footer{background:#fff8e1;border-color:#ffa500;color:#333}
+}
