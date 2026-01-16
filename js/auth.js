@@ -130,6 +130,7 @@ const Database = {
         lab: bookingData.lab,
         date: bookingData.date,
         time: bookingData.time,
+        time_out: bookingData.time_out,
         system: bookingData.system,
         status: 'active',
         created_at: new Date().toISOString()

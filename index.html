@@ -15,7 +15,7 @@
 <body class="hero">
   <header class="topbar">
     <div class="brand">
-      <img class="logo" src="assets/logo.svg" alt="ISKOVA logo" />
+      <img class="logo" src="assets/logo.png" alt="ISKOVA logo" />
       <span>ISKOVA</span>
     </div>
     <nav class="nav">
@@ -25,7 +25,9 @@
       <a href="pages/contact.html">Contact</a>
     </nav>
     <div class="actions">
-      <a class="btn outline" href="pages/login.html">Log In</a>
+      <span id="userGreeting" class="user-greeting"></span>
+      <a class="btn outline" href="pages/login.html" id="loginLink">Log In</a>
+      <button id="logoutBtn" class="btn outline" style="display:none">Logout</button>
     </div>
   </header>
 

@@ -69,17 +69,36 @@
   // Update header with user info
   const userGreeting = document.getElementById('userGreeting');
   const logoutBtn = document.getElementById('logoutBtn');
+  const loginLink = document.getElementById('loginLink');
   
   if(userGreeting || logoutBtn){
     getUser().then(user => {
-      if(userGreeting){
-        userGreeting.textContent = user ? `Hello, ${user.user_metadata?.full_name || user.email}` : '';
-      }
-      if(logoutBtn){
-        logoutBtn.addEventListener('click', async (e)=>{
-          e.preventDefault();
-          await logout();
-        });
+      if(user){
+        // User is logged in
+        if(userGreeting){
+          userGreeting.textContent = `Hello, ${user.user_metadata?.full_name || user.email}`;
+        }
+        if(logoutBtn){
+          logoutBtn.style.display = 'inline-block';
+          logoutBtn.addEventListener('click', async (e)=>{
+            e.preventDefault();
+            await logout();
+          });
+        }
+        if(loginLink){
+          loginLink.style.display = 'none';
+        }
+      } else {
+        // User is not logged in
+        if(userGreeting){
+          userGreeting.textContent = '';
+        }
+        if(logoutBtn){
+          logoutBtn.style.display = 'none';
+        }
+        if(loginLink){
+          loginLink.style.display = 'inline-block';
+        }
       }
     });
   }
@@ -107,6 +126,17 @@
         alert('Please fill all fields'); 
         return; 
       }
+      
+      // Validate password requirements
+      const hasLength = password.length >= 8 && password.length <= 12;
+      const hasNumber = /\d/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      
+      if(!hasLength || !hasNumber || !hasSpecial) {
+        alert('Password must have:\n• 8-12 characters\n• At least one number\n• At least one special character');
+        return;
+      }
+      
       if(password !== confirmPassword){ 
         alert('Passwords do not match'); 
         return; 
@@ -186,13 +216,13 @@
       let time = timeSelect.value;
       const timeOutSelect = document.getElementById('timeOutSelect');
       let timeOut = timeOutSelect ? timeOutSelect.value : '';
-      if(!date || !time){ 
-        alert('Please select both date and time'); 
+      if(!date || !time || !timeOut){ 
+        alert('Please select date, time, and time out'); 
         return; 
       }
 
-      // Validate that time out is not earlier than time
-      if(timeOut && timeOut <= time) {
+      // Validate that time out is not earlier than or equal to time
+      if(timeOut <= time) {
         alert('Preferred Time Out must be after Preferred Time');
         return;
       }
@@ -266,8 +296,8 @@
       document.getElementById('selectedSystem').textContent = `${lab.building}, ${lab.floor}`;
       bookingSection.style.display = 'block';
       
-      // Store for confirmation
-      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, timeOut });
+      // Store for confirmation - use time_out to match Supabase column name
+      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, time_out: timeOut });
     }
 
     // Confirm booking button
@@ -347,7 +377,7 @@
               </div>
               <div class="reservation-details">
                 <p><strong>Date:</strong> ${booking.date}</p>
-                <p><strong>Time:</strong> ${booking.time}</p>
+                <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
                 <p><strong>Booking ID:</strong> ${booking.id}</p>
               </div>
               <div class="reservation-actions">
@@ -413,27 +443,60 @@
         document.getElementById('confirmLab').textContent = booking.lab;
         document.getElementById('confirmDate').textContent = booking.date;
         document.getElementById('confirmTime').textContent = booking.time;
+        document.getElementById('confirmEndTime').textContent = booking.time_out || 'N/A';
         document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
         document.getElementById('confirmId').textContent = booking.id || 'N/A';
+        document.getElementById('confirmStatus').textContent = booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Confirmed';
         
-        // Generate real QR code that links to the full receipt
+        // Get current user
+        const user = await getUser();
+        document.getElementById('confirmBookedBy').textContent = user?.user_metadata?.full_name || user?.email || 'N/A';
+        
+        // Format the booking creation timestamp
+        const bookedAtTime = new Date().toLocaleString(undefined, { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        document.getElementById('confirmBookedAt').textContent = bookedAtTime;
+        
+        // Generate real QR code with embedded booking data
         const qrCodeDiv = document.getElementById('qrCode');
         qrCodeDiv.innerHTML = ''; // Clear previous content
         
-        // QR code data: encode relative URL to confirmation page with booking ID
-        // This will work when deployed to a web server
-        const qrData = `./confirmation.html?id=${booking.id}`;
+        // Create URL to confirmation page - will work when deployed
+        const currentOrigin = window.location.origin;
+        const qrData = `${currentOrigin}/pages/confirmation.html?id=${booking.id}`;
         
         // Generate QR code using QRCode library
         if(typeof QRCode !== 'undefined'){
-          new QRCode(qrCodeDiv, {
-            text: qrData,
-            width: 200,
-            height: 200,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-          });
+          try {
+            new QRCode(qrCodeDiv, {
+              text: qrData,
+              width: 200,
+              height: 200,
+              colorDark: '#000000',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            // Show info if running locally
+            if(currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1') || currentOrigin.includes('file://')){
+              const localWarning = document.createElement('div');
+              localWarning.style.cssText = 'margin-top:12px;padding:10px;background:#fff3cd;color:#856404;border-radius:6px;font-size:12px;';
+              localWarning.innerHTML = '<strong>Note:</strong> QR code will work after deploying to a web server (Netlify, Vercel, GitHub Pages, etc.)';
+              qrCodeDiv.parentElement.appendChild(localWarning);
+            }
+          } catch(err) {
+            console.error('QR Code generation error:', err);
+            qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code generation failed. Please use Booking ID: ' + booking.id + '</p>';
+          }
+        } else {
+          console.error('QRCode library not loaded');
+          qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code library not loaded. Please use Booking ID: ' + booking.id + '</p>';
         }
       }
     }
@@ -533,9 +596,23 @@ if (document.getElementById('labsList')) {
   }
 
   // Calendar
+  let bookingsByDate = {}; // Store bookings organized by date
+
   function monthName(y,m){
     return new Date(y,m,1).toLocaleString(undefined,{ month:'long' });
   }
+
+  async function loadBookingsByDate(){
+    const bookings = await getReservations();
+    bookingsByDate = {};
+    bookings.forEach(booking => {
+      if(!bookingsByDate[booking.date]){
+        bookingsByDate[booking.date] = [];
+      }
+      bookingsByDate[booking.date].push(booking);
+    });
+  }
+
   function buildCalendar(y,m){ // m: 0-11
     const first = new Date(y,m,1);
     const startDay = first.getDay(); // 0=Sun
@@ -553,8 +630,15 @@ if (document.getElementById('labsList')) {
           cell = `<td class="muted">${prevDay}</td>`;
         } else if(day <= daysInMonth){
           const isToday = (new Date().getFullYear()===y && new Date().getMonth()===m && new Date().getDate()===day);
+          const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const bookingsForDate = bookingsByDate[dateStr] || [];
+          const hasBookings = bookingsForDate.length > 0;
           const holiday = (m===0 && day===1) ? '<div class="holiday">New Year\'s Day</div>' : '';
-          cell = `<td class="${isToday?'today':''}"><div>${day}</div>${holiday}</td>`;
+          let reservationIndicator = '';
+          if(hasBookings){
+            reservationIndicator = `<div class="reservation-indicator" data-date="${dateStr}" style="cursor:pointer">${bookingsForDate.length} booking${bookingsForDate.length > 1 ? 's' : ''}</div>`;
+          }
+          cell = `<td class="${isToday?'today':''} ${hasBookings ? 'has-booking' : ''}" data-date="${dateStr}" data-bookings="${bookingsForDate.length}"><div>${day}</div>${holiday}${reservationIndicator}</td>`;
           day++;
         } else {
           const nextDay = day - daysInMonth;
@@ -576,17 +660,83 @@ if (document.getElementById('labsList')) {
     let year = today.getFullYear();
     let month = today.getMonth();
 
-    function update(){
+    async function update(){
+      await loadBookingsByDate();
       cal.innerHTML = buildCalendar(year,month);
       header.innerHTML = `
         <button class="btn outline" aria-label="Prev" id="prevMonth">◀</button>
         <span class="month">${monthName(year,month)} ${year}</span>
         <button class="btn outline" aria-label="Next" id="nextMonth">▶</button>
       `;
+      
+      // Add event listeners to date cells
+      const dateCells = cal.querySelectorAll('td[data-date]');
+      dateCells.forEach(cell => {
+        cell.addEventListener('click', async () => {
+          const dateStr = cell.getAttribute('data-date');
+          await showBookingDetails(dateStr);
+        });
+      });
+
       document.getElementById('prevMonth').onclick = ()=>{ month = (month+11)%12; if(month===11) year--; update(); };
       document.getElementById('nextMonth').onclick = ()=>{ month = (month+1)%12; if(month===0) year++; update(); };
     }
     update();
+  }
+
+  async function showBookingDetails(dateStr){
+    const bookings = bookingsByDate[dateStr] || [];
+    const modal = document.getElementById('bookingDetailsModal');
+    const bookingsList = document.getElementById('bookingsList');
+    const dateDisplay = document.getElementById('selectedDateDisplay');
+    
+    if(!modal){
+      // Create modal if it doesn't exist
+      const newModal = document.createElement('div');
+      newModal.id = 'bookingDetailsModal';
+      newModal.className = 'booking-details-modal';
+      newModal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Bookings for <span id="selectedDateDisplay"></span></h2>
+            <button class="close-btn" id="closeModal">&times;</button>
+          </div>
+          <div id="bookingsList"></div>
+        </div>
+      `;
+      document.body.appendChild(newModal);
+      document.getElementById('closeModal').addEventListener('click', () => {
+        newModal.classList.remove('active');
+      });
+      newModal.addEventListener('click', (e) => {
+        if(e.target === newModal){
+          newModal.classList.remove('active');
+        }
+      });
+    }
+
+    const modal2 = document.getElementById('bookingDetailsModal');
+    const dateDisplay2 = document.getElementById('selectedDateDisplay');
+    const bookingsList2 = document.getElementById('bookingsList');
+    
+    // Format date for display
+    const dateObj = new Date(dateStr + 'T00:00:00');
+    const dateFormatted = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    dateDisplay2.textContent = dateFormatted;
+    
+    if(bookings.length === 0){
+      bookingsList2.innerHTML = '<div class="no-bookings">No bookings for this date</div>';
+    } else {
+      bookingsList2.innerHTML = bookings.map(booking => `
+        <div class="booking-item">
+          <h4>${booking.lab}</h4>
+          <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
+          <p><strong>Status:</strong> ${booking.status || 'pending'}</p>
+        </div>
+      `).join('');
+    }
+    
+    modal2.classList.add('active');
   }
 
   // expose
