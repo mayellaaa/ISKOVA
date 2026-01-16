@@ -182,6 +182,48 @@ const Database = {
     }
   },
 
+  // Count pending bookings for current user
+  async countPendingBookings() {
+    try {
+      const user = await Auth.getCurrentUser();
+      if (!user) return 0;
+
+      const { data, error } = await supabaseClient
+        .from('bookings')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+      return data?.length || 0;
+    } catch (error) {
+      console.error('Count pending bookings error:', error);
+      return 0;
+    }
+  },
+
+  // Check and auto-expire pending bookings older than 24 hours
+  async expireOldPendingBookings() {
+    try {
+      const user = await Auth.getCurrentUser();
+      if (!user) return;
+
+      // Calculate timestamp for 24 hours ago
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      const { error } = await supabaseClient
+        .from('bookings')
+        .update({ status: 'expired' })
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .lt('created_at', oneDayAgo);
+
+      if (error) console.error('Expire pending bookings error:', error);
+    } catch (error) {
+      console.error('Expire pending bookings error:', error);
+    }
+  },
+
   // Get all labs
   async getLabs() {
     try {

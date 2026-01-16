@@ -317,6 +317,13 @@
         }
         const bookingData = JSON.parse(bookingSection.dataset.booking);
         
+        // Check max pending bookings (limit: 3)
+        const pendingCount = await Database.countPendingBookings();
+        if(pendingCount >= 3){
+          alert('You have reached the maximum of 3 pending bookings. Please confirm or cancel existing pending bookings before creating a new one.');
+          return;
+        }
+        
         // Normalize time format for comparison
         let checkTime = bookingData.time;
         if(checkTime && checkTime.length === 5) {
@@ -367,14 +374,30 @@
   if(document.getElementById('reservationsList')){
     const reservationsList = document.getElementById('reservationsList');
     
-    Database.getBookings().then(bookings => {
+    Database.getBookings().then(async bookings => {
+      // Expire old pending bookings
+      await Database.expireOldPendingBookings();
+      
       if(bookings.length === 0){
         reservationsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;padding:40px">No reservations yet. <a href="reserve.html" style="color:#fff">Make your first reservation</a></p>';
       } else {
         reservationsList.innerHTML = bookings.map(booking => {
           const isPending = booking.status === 'active';
-          const statusClass = isPending ? 'pending' : 'confirmed';
-          const statusText = isPending ? 'Pending Confirmation' : 'Confirmed';
+          const isExpired = booking.status === 'expired';
+          const statusClass = isExpired ? 'expired' : (isPending ? 'pending' : 'confirmed');
+          const statusText = isExpired ? 'Expired (Not Confirmed)' : (isPending ? 'Pending Confirmation' : 'Confirmed');
+          
+          // Calculate time until expiration for pending bookings
+          let expirationWarning = '';
+          if(isPending){
+            const createdAt = new Date(booking.created_at);
+            const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+            const now = new Date();
+            const hoursLeft = Math.ceil((expiresAt - now) / (60 * 60 * 1000));
+            if(hoursLeft > 0){
+              expirationWarning = `<p style="color:#f0d8b7;font-size:12px;margin-top:8px"><strong>⏰ Expires in ${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''}</strong></p>`;
+            }
+          }
           
           return `
             <div class="card reservation-card">
@@ -386,6 +409,7 @@
                 <p><strong>Date:</strong> ${booking.date}</p>
                 <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
                 <p><strong>Booking ID:</strong> ${booking.id}</p>
+                ${expirationWarning}
               </div>
               <div class="reservation-actions">
                 ${isPending ? `<button class="btn primary" onclick="ISKOVA.confirmBooking('${booking.id}')">Confirm This Booking</button>` : ''}
