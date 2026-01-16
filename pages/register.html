@@ -30,11 +30,35 @@
       </label>
       <label class="field">
         <span>Password</span>
-        <input type="password" id="password" required />
+        <div class="password-field">
+          <input type="password" id="password" required />
+          <button type="button" class="toggle-password" id="togglePassword">
+            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        <div class="password-requirements">
+          <p class="requirement-title">Password must have:</p>
+          <ul>
+            <li class="requirement" id="req-length"><span class="check">✗</span> 8-12 characters</li>
+            <li class="requirement" id="req-number"><span class="check">✗</span> At least one number</li>
+            <li class="requirement" id="req-special"><span class="check">✗</span> At least one special character</li>
+          </ul>
+        </div>
       </label>
       <label class="field">
         <span>Confirm Password</span>
-        <input type="password" id="confirmPassword" required />
+        <div class="password-field">
+          <input type="password" id="confirmPassword" required />
+          <button type="button" class="toggle-password" id="toggleConfirmPassword">
+            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
       </label>
       <button class="btn primary" type="submit">Register</button>
       <p style="text-align:center;margin-top:12px;color:#f0dfe1">
@@ -45,5 +69,85 @@
   <script src="../js/supabase-config.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/script.js"></script>
+  <script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = togglePassword.querySelector('.eye-icon');
+    
+    // Initialize with closed eye (password is hidden)
+    eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+    
+    togglePassword.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (passwordInput.type === 'password') {
+        // Show password - display open eye icon
+        passwordInput.type = 'text';
+        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      } else {
+        // Hide password - display closed eye icon
+        passwordInput.type = 'password';
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      }
+    });
+    
+    // Toggle confirm password visibility
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const confirmEyeIcon = toggleConfirmPassword.querySelector('.eye-icon');
+    
+    // Initialize with closed eye (password is hidden)
+    confirmEyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+    
+    toggleConfirmPassword.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirmPasswordInput.type === 'password') {
+        // Show password - display open eye icon
+        confirmPasswordInput.type = 'text';
+        confirmEyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+      } else {
+        // Hide password - display closed eye icon
+        confirmPasswordInput.type = 'password';
+        confirmEyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+      }
+    });
+    
+    // Password validation
+    const reqLength = document.getElementById('req-length');
+    const reqNumber = document.getElementById('req-number');
+    const reqSpecial = document.getElementById('req-special');
+    
+    function validatePassword() {
+      const password = passwordInput.value;
+      
+      // Check length (8-12 characters)
+      const hasLength = password.length >= 8 && password.length <= 12;
+      updateRequirement(reqLength, hasLength);
+      
+      // Check for at least one number
+      const hasNumber = /\d/.test(password);
+      updateRequirement(reqNumber, hasNumber);
+      
+      // Check for at least one special character
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      updateRequirement(reqSpecial, hasSpecial);
+      
+      return hasLength && hasNumber && hasSpecial;
+    }
+    
+    function updateRequirement(element, isValid) {
+      const checkMark = element.querySelector('.check');
+      if (isValid) {
+        element.classList.add('valid');
+        checkMark.textContent = '✓';
+      } else {
+        element.classList.remove('valid');
+        checkMark.textContent = '✗';
+      }
+    }
+
+    
+    passwordInput.addEventListener('input', validatePassword);
+  </script>
 </body>
 </html>

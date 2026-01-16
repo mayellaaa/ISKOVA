@@ -126,6 +126,17 @@
         alert('Please fill all fields'); 
         return; 
       }
+      
+      // Validate password requirements
+      const hasLength = password.length >= 8 && password.length <= 12;
+      const hasNumber = /\d/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      
+      if(!hasLength || !hasNumber || !hasSpecial) {
+        alert('Password must have:\n• 8-12 characters\n• At least one number\n• At least one special character');
+        return;
+      }
+      
       if(password !== confirmPassword){ 
         alert('Passwords do not match'); 
         return; 
@@ -203,9 +214,17 @@
       e.preventDefault();
       const date = dateSelect.value;
       let time = timeSelect.value;
-      if(!date || !time){ 
-        alert('Please select both date and time'); 
+      const timeOutSelect = document.getElementById('timeOutSelect');
+      let timeOut = timeOutSelect ? timeOutSelect.value : '';
+      if(!date || !time || !timeOut){ 
+        alert('Please select date, time, and time out'); 
         return; 
+      }
+
+      // Validate that time out is not earlier than or equal to time
+      if(timeOut <= time) {
+        alert('Preferred Time Out must be after Preferred Time');
+        return;
       }
 
       // Normalize time format to match database (add :00 seconds if not present)
@@ -262,22 +281,23 @@
             // Store selected lab
             selectedLabData = JSON.parse(this.getAttribute('data-lab'));
             // Show booking section
-            showBookingSummary(selectedLabData, date, time);
+            showBookingSummary(selectedLabData, date, time, timeOut);
           });
         });
       }
     });
 
     // Show booking summary
-    function showBookingSummary(lab, date, time){
+    function showBookingSummary(lab, date, time, timeOut){
       document.getElementById('selectedLab').textContent = lab.name;
       document.getElementById('selectedDate').textContent = date;
       document.getElementById('selectedTime').textContent = time;
+      document.getElementById('selectedTimeOut').textContent = timeOut;
       document.getElementById('selectedSystem').textContent = `${lab.building}, ${lab.floor}`;
       bookingSection.style.display = 'block';
       
-      // Store for confirmation
-      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time });
+      // Store for confirmation - use time_out to match Supabase column name
+      bookingSection.dataset.booking = JSON.stringify({ lab: lab.name, date, time, time_out: timeOut });
     }
 
     // Confirm booking button
@@ -357,7 +377,7 @@
               </div>
               <div class="reservation-details">
                 <p><strong>Date:</strong> ${booking.date}</p>
-                <p><strong>Time:</strong> ${booking.time}</p>
+                <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
                 <p><strong>Booking ID:</strong> ${booking.id}</p>
               </div>
               <div class="reservation-actions">
@@ -406,79 +426,156 @@
   if(document.getElementById('confirmLab')){
     const urlParams = new URLSearchParams(window.location.search);
     const bookingId = urlParams.get('id');
-    let booking;
     
-    if(bookingId){
-      booking = getReservations().find(b => b.id === bookingId);
-    } else {
-      try{
-        booking = JSON.parse(localStorage.getItem('lastBooking') || 'null');
-      }catch{}
-    }
-
-    if(booking){
-      document.getElementById('confirmLab').textContent = booking.lab;
-      document.getElementById('confirmDate').textContent = booking.date;
-      document.getElementById('confirmTime').textContent = booking.time;
-      document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
-      document.getElementById('confirmId').textContent = booking.id || 'N/A';
+    async function loadConfirmationDetails(){
+      let booking = null;
       
-      // Simple QR code visualization
-      document.getElementById('qrCode').innerHTML = `
-        <div style="width:100%;height:100%;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:2px;padding:10px">
-          ${Array.from({length:64}, (_,i) => 
-            `<div style="background:${Math.random()>0.5?'#000':'#fff'};border-radius:2px"></div>`
-          ).join('')}
-        </div>
-      `;
-    }
-  }
-
-  // Labs page
-  if(document.getElementById('labsList')){
-    const searchInput = document.getElementById('searchLabs');
-    loadLabs().then(async () => {
-      await updateLabStatus();
-      
-      function renderLabs(){
-        const search = searchInput.value.toLowerCase();
-        const filter = filterSelect.value;
-        
-        const filtered = labsData.filter(lab => {
-          const matchesSearch = lab.name.toLowerCase().includes(search) || 
-                               lab.building.toLowerCase().includes(search);
-          const matchesFilter = !filter || lab.type === filter;
-          return matchesSearch && matchesFilter;
-        });
-
-        const labsList = document.getElementById('labsList');
-        if(filtered.length === 0){
-          labsList.innerHTML = '<p style="color:#e9d6d9;text-align:center;grid-column:1/-1">No labs found</p>';
-          return;
-        }
-
-        labsList.innerHTML = filtered.map(lab => {
-          const badgeClass = lab.status === 'available' ? 'available' : 
-                            lab.status === 'limited' ? 'limited' : 'full';
-          return `
-            <div class="lab-card">
-              <h3>${lab.name}</h3>
-              <span class="badge ${badgeClass}">${lab.status.toUpperCase()}</span>
-              <div class="lab-info">
-                <p><strong>Capacity:</strong> ${lab.capacity} students</p>
-                <p><strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
-              </div>
-              <a class="btn primary" href="reserve.html" style="width:100%;margin-top:12px">Book Now</a>
-            </div>
-          `;
-        }).join('');
+      if(bookingId){
+        const reservations = await getReservations();
+        booking = reservations.find(b => b.id === bookingId);
+      } else {
+        try{
+          booking = JSON.parse(localStorage.getItem('lastBooking') || 'null');
+        }catch{}
       }
 
-      searchInput.addEventListener('input', renderLabs);
-      filterSelect.addEventListener('change', renderLabs);
-      renderLabs();
-    });
+      if(booking){
+        document.getElementById('confirmLab').textContent = booking.lab;
+        document.getElementById('confirmDate').textContent = booking.date;
+        document.getElementById('confirmTime').textContent = booking.time;
+        document.getElementById('confirmEndTime').textContent = booking.time_out || 'N/A';
+        document.getElementById('confirmSystem').textContent = 'Southwing, 5th Floor';
+        document.getElementById('confirmId').textContent = booking.id || 'N/A';
+        document.getElementById('confirmStatus').textContent = booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Confirmed';
+        
+        // Get current user
+        const user = await getUser();
+        document.getElementById('confirmBookedBy').textContent = user?.user_metadata?.full_name || user?.email || 'N/A';
+        
+        // Format the booking creation timestamp
+        const bookedAtTime = new Date().toLocaleString(undefined, { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        document.getElementById('confirmBookedAt').textContent = bookedAtTime;
+        
+        // Generate real QR code with embedded booking data
+        const qrCodeDiv = document.getElementById('qrCode');
+        qrCodeDiv.innerHTML = ''; // Clear previous content
+        
+        // Create URL to confirmation page - will work when deployed
+        const currentOrigin = window.location.origin;
+        const qrData = `${currentOrigin}/pages/confirmation.html?id=${booking.id}`;
+        
+        // Generate QR code using QRCode library
+        if(typeof QRCode !== 'undefined'){
+          try {
+            new QRCode(qrCodeDiv, {
+              text: qrData,
+              width: 200,
+              height: 200,
+              colorDark: '#000000',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+            
+            // Show info if running locally
+            if(currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1') || currentOrigin.includes('file://')){
+              const localWarning = document.createElement('div');
+              localWarning.style.cssText = 'margin-top:12px;padding:10px;background:#fff3cd;color:#856404;border-radius:6px;font-size:12px;';
+              localWarning.innerHTML = '<strong>Note:</strong> QR code will work after deploying to a web server (Netlify, Vercel, GitHub Pages, etc.)';
+              qrCodeDiv.parentElement.appendChild(localWarning);
+            }
+          } catch(err) {
+            console.error('QR Code generation error:', err);
+            qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code generation failed. Please use Booking ID: ' + booking.id + '</p>';
+          }
+        } else {
+          console.error('QRCode library not loaded');
+          qrCodeDiv.innerHTML = '<p style="color:#333;padding:20px;font-size:12px;">QR Code library not loaded. Please use Booking ID: ' + booking.id + '</p>';
+        }
+      }
+    }
+    
+    loadConfirmationDetails();
   }
+
+// Labs page
+if (document.getElementById('labsList')) {
+
+  const labsList = document.getElementById('labsList');
+  const searchInput = document.getElementById('searchLabs');
+  const filterSelect = document.getElementById('filterCapacity');
+
+  loadLabs().then(async () => {
+    await updateLabStatus();
+    renderLabs();
+  });
+
+  function renderLabs() {
+    const search = searchInput.value.toLowerCase();
+    const filter = filterSelect.value;
+
+    const filteredLabs = labsData.filter(lab => {
+      const matchesSearch =
+        lab.name.toLowerCase().includes(search) ||
+        lab.building.toLowerCase().includes(search);
+
+      /*const matchesCapacity =
+        !filter || lab.type === filter;
+      */
+
+      let computedType = 'large';
+        if (lab.capacity <= 20) computedType = 'small';
+        else if (lab.capacity <= 40) computedType = 'medium';
+
+      const matchesCapacity =
+        !filter || computedType === filter;
+
+      return matchesSearch && matchesCapacity;
+    });
+
+    if (filteredLabs.length === 0) {
+      labsList.innerHTML = `
+        <p style="text-align:center;color:#e9d6d9;">
+          No laboratory rooms found
+        </p>`;
+      return;
+    }
+
+    labsList.innerHTML = filteredLabs.map(lab => {
+      const statusClass =
+        lab.status === 'available' ? 'available' :
+        lab.status === 'limited' ? 'limited' : 'full';
+
+      return `
+        <div class="lab-card">
+          <h3>${lab.name}</h3>
+          <span class="badge ${statusClass}">
+            ${lab.status.toUpperCase()}
+          </span>
+
+          <div class="lab-info">
+            <p><strong>Capacity:</strong> ${lab.capacity} students</p>
+            <p><strong>Computers:</strong> ${lab.computers} units</p>
+            <p><strong>Location:</strong> ${lab.building}, ${lab.floor}</p>
+          </div>
+
+          <a href="reserve.html" class="btn primary">
+            Reserve this Lab
+          </a>
+        </div>
+      `;
+    }).join('');
+  }
+
+  searchInput.addEventListener('input', renderLabs);
+  filterSelect.addEventListener('change', renderLabs);
+}
 
   // Contact form
   const contactForm = document.getElementById('contactForm');
@@ -499,9 +596,23 @@
   }
 
   // Calendar
+  let bookingsByDate = {}; // Store bookings organized by date
+
   function monthName(y,m){
     return new Date(y,m,1).toLocaleString(undefined,{ month:'long' });
   }
+
+  async function loadBookingsByDate(){
+    const bookings = await getReservations();
+    bookingsByDate = {};
+    bookings.forEach(booking => {
+      if(!bookingsByDate[booking.date]){
+        bookingsByDate[booking.date] = [];
+      }
+      bookingsByDate[booking.date].push(booking);
+    });
+  }
+
   function buildCalendar(y,m){ // m: 0-11
     const first = new Date(y,m,1);
     const startDay = first.getDay(); // 0=Sun
@@ -519,8 +630,15 @@
           cell = `<td class="muted">${prevDay}</td>`;
         } else if(day <= daysInMonth){
           const isToday = (new Date().getFullYear()===y && new Date().getMonth()===m && new Date().getDate()===day);
+          const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const bookingsForDate = bookingsByDate[dateStr] || [];
+          const hasBookings = bookingsForDate.length > 0;
           const holiday = (m===0 && day===1) ? '<div class="holiday">New Year\'s Day</div>' : '';
-          cell = `<td class="${isToday?'today':''}"><div>${day}</div>${holiday}</td>`;
+          let reservationIndicator = '';
+          if(hasBookings){
+            reservationIndicator = `<div class="reservation-indicator" data-date="${dateStr}" style="cursor:pointer">${bookingsForDate.length} booking${bookingsForDate.length > 1 ? 's' : ''}</div>`;
+          }
+          cell = `<td class="${isToday?'today':''} ${hasBookings ? 'has-booking' : ''}" data-date="${dateStr}" data-bookings="${bookingsForDate.length}"><div>${day}</div>${holiday}${reservationIndicator}</td>`;
           day++;
         } else {
           const nextDay = day - daysInMonth;
@@ -542,17 +660,83 @@
     let year = today.getFullYear();
     let month = today.getMonth();
 
-    function update(){
+    async function update(){
+      await loadBookingsByDate();
       cal.innerHTML = buildCalendar(year,month);
       header.innerHTML = `
         <button class="btn outline" aria-label="Prev" id="prevMonth">◀</button>
         <span class="month">${monthName(year,month)} ${year}</span>
         <button class="btn outline" aria-label="Next" id="nextMonth">▶</button>
       `;
+      
+      // Add event listeners to date cells
+      const dateCells = cal.querySelectorAll('td[data-date]');
+      dateCells.forEach(cell => {
+        cell.addEventListener('click', async () => {
+          const dateStr = cell.getAttribute('data-date');
+          await showBookingDetails(dateStr);
+        });
+      });
+
       document.getElementById('prevMonth').onclick = ()=>{ month = (month+11)%12; if(month===11) year--; update(); };
       document.getElementById('nextMonth').onclick = ()=>{ month = (month+1)%12; if(month===0) year++; update(); };
     }
     update();
+  }
+
+  async function showBookingDetails(dateStr){
+    const bookings = bookingsByDate[dateStr] || [];
+    const modal = document.getElementById('bookingDetailsModal');
+    const bookingsList = document.getElementById('bookingsList');
+    const dateDisplay = document.getElementById('selectedDateDisplay');
+    
+    if(!modal){
+      // Create modal if it doesn't exist
+      const newModal = document.createElement('div');
+      newModal.id = 'bookingDetailsModal';
+      newModal.className = 'booking-details-modal';
+      newModal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Bookings for <span id="selectedDateDisplay"></span></h2>
+            <button class="close-btn" id="closeModal">&times;</button>
+          </div>
+          <div id="bookingsList"></div>
+        </div>
+      `;
+      document.body.appendChild(newModal);
+      document.getElementById('closeModal').addEventListener('click', () => {
+        newModal.classList.remove('active');
+      });
+      newModal.addEventListener('click', (e) => {
+        if(e.target === newModal){
+          newModal.classList.remove('active');
+        }
+      });
+    }
+
+    const modal2 = document.getElementById('bookingDetailsModal');
+    const dateDisplay2 = document.getElementById('selectedDateDisplay');
+    const bookingsList2 = document.getElementById('bookingsList');
+    
+    // Format date for display
+    const dateObj = new Date(dateStr + 'T00:00:00');
+    const dateFormatted = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    dateDisplay2.textContent = dateFormatted;
+    
+    if(bookings.length === 0){
+      bookingsList2.innerHTML = '<div class="no-bookings">No bookings for this date</div>';
+    } else {
+      bookingsList2.innerHTML = bookings.map(booking => `
+        <div class="booking-item">
+          <h4>${booking.lab}</h4>
+          <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
+          <p><strong>Status:</strong> ${booking.status || 'pending'}</p>
+        </div>
+      `).join('');
+    }
+    
+    modal2.classList.add('active');
   }
 
   // expose
