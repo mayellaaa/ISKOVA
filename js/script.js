@@ -787,7 +787,7 @@ if (document.getElementById('labsList')) {
         <div class="booking-item">
           <h4>${booking.lab}</h4>
           <p><strong>Time:</strong> ${booking.time} - ${booking.time_out}</p>
-          <p><strong>Status:</strong> ${booking.status || 'pending'}</p>
+          <p><strong>Status:</strong> ${booking.status === 'confirmed' ? 'Confirmed' : 'Pending'}</p>
         </div>
       `).join('');
     }
