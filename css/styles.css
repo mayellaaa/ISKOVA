@@ -88,7 +88,7 @@ body.hero{background:
 .form.glass{width:420px; margin:0 auto; padding:18px; border-radius:12px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); backdrop-filter: blur(6px); display:flex; flex-direction:column}
 .form.glass .btn.primary{align-self:center}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.field span{font-size:14px;color:#f0dfe1}
+.field span{font-size:14px;color:#842736}
 .field input, .field select{padding:12px;border-radius:10px;border:1px solid #c7a2a7;outline:none;background:#f9eef0;color:#2b1419}
 .password-field{display:flex;align-items:center;position:relative}
 .password-field input{flex:1;border-radius:10px 0 0 10px}
